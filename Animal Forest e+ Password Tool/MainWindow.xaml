@@ -1,0 +1,26 @@
+﻿<Window x:Class="Animal_Forest_e__Password_Tool.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Animal_Forest_e__Password_Tool"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="400">
+    <Grid>
+        <TabControl x:Name="tabControl" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <TabItem Header="Generator">
+                <Grid Background="#FFE5E5E5">
+                    <TextBox x:Name="EncoderResultTextBox" IsReadOnly="True" MaxLength="40" HorizontalAlignment="Center" VerticalAlignment="Center" Width="240" Height="48" AcceptsReturn="True" FontSize="18" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Decoder">
+                <Grid Background="#FFE5E5E5">
+                    <TextBox x:Name="DecoderTextBox" MaxLength="40" HorizontalAlignment="Center" VerticalAlignment="Center" Width="240" Height="48" AcceptsReturn="True" FontSize="18" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                    <Label FontSize="28" Content="Password" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0, 0, 0, 100"/>
+                    <Button x:Name="DecodeButton" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0, 100, 0, 0" Content="Decode" FontSize="18" Width="200"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+    </Grid>
+</Window>
