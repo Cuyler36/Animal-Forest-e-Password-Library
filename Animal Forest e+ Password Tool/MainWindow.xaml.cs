@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+using PasswordLibrary.Decoder;
 using PasswordLibrary.Encoder;
 
 namespace Animal_Forest_e__Password_Tool
@@ -24,19 +25,68 @@ namespace Animal_Forest_e__Password_Tool
         // Code Types:
         // 4 = Player-to-Player
         // 7 = Monument (Town Decoration) [From Object Delivery Service]
+        public enum CodeType : int
+        {
+            PlayerToPlayer = 4,
+            Monument = 7
+        }
+
+        public enum MonumentType : int
+        {
+            ParkClock = 0,
+            GasLamp = 1,
+            Windpump = 2,
+            FlowerClock = 3,
+            Heliport = 4,
+            WindTurbine = 5,
+            PipeStack = 6,
+            Stonehenge = 7,
+            Egg = 8,
+            Footprints = 9,
+            Geoglyph = 10,
+            Mushroom = 11,
+            Signpost = 12,
+            Well = 13,
+            Fountain = 14
+        }
 
         public MainWindow()
         {
             InitializeComponent();
             //string Result = Encoder.Encode(7, 0, "Town", "Abc", "12600", 0, 0x11); //Encoder.Encode(4, 1, "Hyrule", "Wes", "Abc", 0x30BC, 0);
-            string Result = MakeMonumentCode(8, 3, 2, "Town", "Abc", "1000");
-            Console.WriteLine(Result);
+            string Result = MakeMonumentCode((int)MonumentType.Mushroom, 2, 4, "Town", "Abc", "0");
+            //Console.WriteLine(Result);
             EncoderResultTextBox.Text = Result;
         }
 
         private string MakeMonumentCode(int MonumentType, int AcreY, int AcreX, string TownName, string Receipiant, string Price)
         {
             return Encoder.Encode(7, 0, TownName, Receipiant, Price, (ushort)(MonumentType % 15), ((AcreY & 7) << 3) | (AcreX & 7));
+        }
+
+        private void DecodeButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (!string.IsNullOrEmpty(DecoderTextBox.Text))
+            {
+                string SecretCode = DecoderTextBox.Text.Replace("\r", "").Replace("\n", "");
+                if (ContainsInvalidCharacters(SecretCode) == false)
+                {
+                    // TODO: Add some way of displaying the info
+                    byte[] DecoderResult = Decoder.Decode(SecretCode);
+                }
+            }
+        }
+
+        private bool ContainsInvalidCharacters(string Text)
+        {
+            for (int i = 0; i < Text.Length; i++)
+            {
+                if (Array.IndexOf(PasswordLibrary.Common.AFe_CharList, Text.Substring(i, 1)) < 0)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

@@ -17,7 +17,7 @@
                 <Grid Background="#FFE5E5E5">
                     <TextBox x:Name="DecoderTextBox" MaxLength="40" HorizontalAlignment="Center" VerticalAlignment="Center" Width="240" Height="48" AcceptsReturn="True" FontSize="18" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
                     <Label FontSize="28" Content="Password" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0, 0, 0, 100"/>
-                    <Button x:Name="DecodeButton" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0, 100, 0, 0" Content="Decode" FontSize="18" Width="200"/>
+                    <Button x:Name="DecodeButton" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0, 100, 0, 0" Content="Decode" FontSize="18" Width="200" Click="DecodeButton_Click"/>
                 </Grid>
             </TabItem>
         </TabControl>
