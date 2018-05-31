@@ -22,13 +22,16 @@ namespace Animal_Forest_e__Password_Tool
     /// </summary>
     public partial class MainWindow : Window
     {
-        // Code Types:
-        // 4 = Player-to-Player
-        // 7 = Monument (Town Decoration) [From Object Delivery Service]
         public enum CodeType : int
         {
-            PlayerToPlayer = 4,
-            Monument = 7
+            Famicom = 0, // NES
+            NPC = 1, // Original NPC Code
+            Card_E = 2, // NOTE: This is a stubbed method (just returns 4)
+            Magazine = 3, // Contest?
+            User = 4, // Player-to-Player
+            Card_E_Mini = 5, // Only one data strip?
+            New_NPC = 6, // Using the new password system?
+            Monument = 7 // Town Decorations (from Object Delivery Service, see: https://www.nintendo.co.jp/ngc/gaej/obje/)
         }
 
         public enum MonumentType : int
