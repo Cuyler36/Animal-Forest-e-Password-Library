@@ -17,42 +17,42 @@ using PasswordLibrary.Encoder;
 
 namespace Animal_Forest_e__Password_Tool
 {
+    public enum CodeType : int
+    {
+        Famicom = 0, // NES
+        NPC = 1, // Original NPC Code
+        Card_E = 2, // NOTE: This is a stubbed method (just returns 4)
+        Magazine = 3, // Contest?
+        User = 4, // Player-to-Player
+        Card_E_Mini = 5, // Only one data strip?
+        New_NPC = 6, // Using the new password system?
+        Monument = 7 // Town Decorations (from Object Delivery Service, see: https://www.nintendo.co.jp/ngc/gaej/obje/)
+    }
+
+    public enum MonumentType : int
+    {
+        ParkClock = 0,
+        GasLamp = 1,
+        Windpump = 2,
+        FlowerClock = 3,
+        Heliport = 4,
+        WindTurbine = 5,
+        PipeStack = 6,
+        Stonehenge = 7,
+        Egg = 8,
+        Footprints = 9,
+        Geoglyph = 10,
+        Mushroom = 11,
+        Signpost = 12,
+        Well = 13,
+        Fountain = 14
+    }
+
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
-        public enum CodeType : int
-        {
-            Famicom = 0, // NES
-            NPC = 1, // Original NPC Code
-            Card_E = 2, // NOTE: This is a stubbed method (just returns 4)
-            Magazine = 3, // Contest?
-            User = 4, // Player-to-Player
-            Card_E_Mini = 5, // Only one data strip?
-            New_NPC = 6, // Using the new password system?
-            Monument = 7 // Town Decorations (from Object Delivery Service, see: https://www.nintendo.co.jp/ngc/gaej/obje/)
-        }
-
-        public enum MonumentType : int
-        {
-            ParkClock = 0,
-            GasLamp = 1,
-            Windpump = 2,
-            FlowerClock = 3,
-            Heliport = 4,
-            WindTurbine = 5,
-            PipeStack = 6,
-            Stonehenge = 7,
-            Egg = 8,
-            Footprints = 9,
-            Geoglyph = 10,
-            Mushroom = 11,
-            Signpost = 12,
-            Well = 13,
-            Fountain = 14
-        }
-
         public MainWindow()
         {
             InitializeComponent();
@@ -146,7 +146,9 @@ namespace Animal_Forest_e__Password_Tool
             Console.WriteLine("Code Type: " + X);
             CodeTypeLabel.Content = "Code Type: " + CodeTypes[X];
 
-            if (X == 7 && uint.TryParse(SenderString, out uint Price)) // 7 = Monument (Town Decoration)
+            CodeType Type = (CodeType)X;
+
+            if (Type == CodeType.Monument && uint.TryParse(SenderString, out uint Price)) // 7 = Monument (Town Decoration)
             {
                 int AcreX = Data[1] & 7;
                 int AcreY = (Data[1] >> 3) & 7;
@@ -160,28 +162,34 @@ namespace Animal_Forest_e__Password_Tool
                 String4Label.Content = "Price: " + Price.ToString("#,##0") + " Bells";
                 String5Label.Content = "Placement Acre: " + AcreY + "-" + AcreX;
             }
-            else
+            else if(Type == CodeType.User)
             {
                 Console.WriteLine(string.Format("Town Name: {0}\r\nPlayer Name: {1}\r\nSender Name: {2}\r\nSent Item ID: 0x{3}",
                     TownName, PlayerName, SenderString, PresentItemId.ToString("X4")));
+
+                String1Label.Content = "Recipient's Town Name: " + TownName;
+                String2Label.Content = "Recipient's Name: " + PlayerName;
+                String3Label.Content = "Sender's Name: " + SenderString;
+                String4Label.Content = "Item ID: 0x" + PresentItemId.ToString("X4");
+                String5Label.Content = "";
             }
 
-            int CodeType = 0;
+            int CodeTypeValue = 0;
 
             if (X == 7)
             {
-                CodeType = (A >> 2) & 7;
+                CodeTypeValue = (A >> 2) & 7;
                 // There's more here under mMpswd_new_password
                 int AcreX = Data[1] & 7;
                 int AcreY = (Data[1] >> 3) & 7;
             }
             else if (X >= 2 && X < 7)
             {
-                CodeType = (A >> 2) & 3;
+                CodeTypeValue = (A >> 2) & 3;
             }
             else // 3 is included in this since it's the same as the default route
             {
-                CodeType = (A >> 2) & 7;
+                CodeTypeValue = (A >> 2) & 7;
             }
         }
     }
