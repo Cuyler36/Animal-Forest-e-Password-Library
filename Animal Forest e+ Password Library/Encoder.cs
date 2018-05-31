@@ -5,7 +5,7 @@ namespace PasswordLibrary.Encoder
 {
     public static class Encoder
     {
-        public static byte[] mMpswd_make_passcode(int CodeType, int Unknown1, string ReceipiantTown, string Receipiant, string Sender, ushort ItemId, int Unknown2)
+        public static byte[] mMpswd_make_passcode(int CodeType, int Unknown1, string RecipientTown, string Recipient, string Sender, ushort ItemId, int Unknown2)
         {
             byte[] Output = new byte[24];
 
@@ -47,39 +47,39 @@ namespace PasswordLibrary.Encoder
             Output[1] = (byte)Unknown2;
             Output[2] = (byte)r31;
 
-            // Copy Receipiant Name
+            // Copy Recipient Name
             for(int i = 0; i < 6; i++)
             {
-                if (i >= ReceipiantTown.Length)
+                if (i >= RecipientTown.Length)
                 {
                     Output[3 + i] = 0x20; // Space Character value
                 }
                 else
                 {
-                    int CharacterIndex = Array.IndexOf(Common.AFe_CharList, ReceipiantTown.Substring(i, 1));
+                    int CharacterIndex = Array.IndexOf(Common.AFe_CharList, RecipientTown.Substring(i, 1));
                     if (CharacterIndex < 0)
                     {
                         CharacterIndex = 0x20; // Set to space? TODO: Maybe we should return "invalid code" if this happens
-                        Console.WriteLine("Encountered an invalid character in the Receipiant's Name at string offset: " + i);
+                        Console.WriteLine("Encountered an invalid character in the Recipient's Name at string offset: " + i);
                     }
                     Output[3 + i] = (byte)CharacterIndex;
                 }
             }
 
-            // Copy Receipiant Town Name
+            // Copy Recipient Town Name
             for (int i = 0; i < 6; i++)
             {
-                if (i >= Receipiant.Length)
+                if (i >= Recipient.Length)
                 {
                     Output[9 + i] = 0x20; // Space Character value
                 }
                 else
                 {
-                    int CharacterIndex = Array.IndexOf(Common.AFe_CharList, Receipiant.Substring(i, 1));
+                    int CharacterIndex = Array.IndexOf(Common.AFe_CharList, Recipient.Substring(i, 1));
                     if (CharacterIndex < 0)
                     {
                         CharacterIndex = 0x20; // Set to space? TODO: Maybe we should return "invalid code" if this happens
-                        Console.WriteLine("Encountered an invalid character in the Receipiant's Town Name at string offset: " + i);
+                        Console.WriteLine("Encountered an invalid character in the Recipient's Town Name at string offset: " + i);
                     }
                     Output[9 + i] = (byte)CharacterIndex;
                 }
@@ -288,9 +288,9 @@ namespace PasswordLibrary.Encoder
             }
         }
 
-        public static string Encode(int CodeType, int Unknown1, string ReceipiantTown, string Receipiant, string Sender, ushort ItemId, int Unknown2)
+        public static string Encode(int CodeType, int Unknown1, string RecipientTown, string Recipient, string Sender, ushort ItemId, int Unknown2)
         {
-            byte[] PasswordData = mMpswd_make_passcode(CodeType, Unknown1, ReceipiantTown, Receipiant, Sender, ItemId, Unknown2);
+            byte[] PasswordData = mMpswd_make_passcode(CodeType, Unknown1, RecipientTown, Recipient, Sender, ItemId, Unknown2);
             mMpswd_substitution_cipher(ref PasswordData);
             Common.mMpswd_transposition_cipher(ref PasswordData, true, 0);
             mMpswd_bit_shuffle(ref PasswordData, 0);

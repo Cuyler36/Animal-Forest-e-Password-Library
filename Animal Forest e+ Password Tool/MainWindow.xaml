@@ -15,12 +15,17 @@
             </TabItem>
             <TabItem Header="Decoder">
                 <Grid Background="#FFE5E5E5">
-                    <TextBox x:Name="DecoderTextBox" MaxLength="40" HorizontalAlignment="Center" VerticalAlignment="Center" Width="240" Height="48" AcceptsReturn="True" FontSize="18" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
-                    <Label FontSize="28" Content="Password" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0, 0, 0, 100"/>
-                    <Button x:Name="DecodeButton" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0, 100, 0, 0" Content="Decode" FontSize="18" Width="200" Click="DecodeButton_Click"/>
+                    <TextBox x:Name="DecoderTextBox" MaxLength="40" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0, 0, 0, 60" Width="240" Height="48" AcceptsReturn="True" FontSize="18" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                    <Label FontSize="28" Content="Password" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0, 0, 0, 110"/>
+                    <Button x:Name="DecodeButton" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0, 0, 0, 20" Content="Decode" FontSize="18" Width="200" Click="DecodeButton_Click"/>
+                    <Label x:Name="CodeTypeLabel" Content="Code Type:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="String1Label" Content="Recipient's Town Name:" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="String2Label" Content="Recipient's Name:" HorizontalAlignment="Left" Margin="10,72,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="String3Label" Content="Sender's Name:" HorizontalAlignment="Left" Margin="10,103,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="String4Label" Content="Item ID:" HorizontalAlignment="Left" Margin="10,134,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="String5Label" Content="" HorizontalAlignment="Left" Margin="10,165,0,0" VerticalAlignment="Top"/>
                 </Grid>
             </TabItem>
         </TabControl>
-
     </Grid>
 </Window>
