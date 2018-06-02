@@ -128,7 +128,7 @@ namespace PasswordLibrary.Encoder
             Checksum += ItemId;
             Checksum += r31;
             Output[0] |= (byte)((Checksum >> 2) & 3);
-            Output[1] |= (byte)((Checksum << 6) & 0xC0);
+            Output[1] |= (byte)((Checksum & 3) << 6);
 
             return Output;
         }

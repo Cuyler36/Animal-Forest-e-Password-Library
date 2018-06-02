@@ -56,16 +56,22 @@ namespace Animal_Forest_e__Password_Tool
         public MainWindow()
         {
             InitializeComponent();
-            //string Result = Encoder.Encode(7, 0, "Town", "Abc", "12600", 0, 0x11); //Encoder.Encode(4, 1, "Hyrule", "Wes", "Abc", 0x30BC, 0);
-            string Result = MakeMonumentCode((int)MonumentType.Mushroom, 2, 4, "Town", "Abc", "0");
-            //Console.WriteLine(Result);
-            EncoderResultTextBox.Text = Result;
+            CodeTypeComboBox.SelectionChanged += CodeTypeComboBox_SelectionChanged;
         }
+
+        // Encoder Code \\
 
         private string MakeMonumentCode(int MonumentType, int AcreY, int AcreX, string TownName, string Recipient, string Price)
         {
-            return Encoder.Encode(7, 0, TownName, Recipient, Price, (ushort)(MonumentType % 15), ((AcreY & 7) << 3) | (AcreX & 7));
+            return Encoder.Encode((int)CodeType.Monument, 0, TownName, Recipient, Price, (ushort)(MonumentType % 15), ((AcreY & 7) << 3) | (AcreX & 7));
         }
+
+        private string MakeUserCode(string TownName, string Recipient, string Sender, ushort ItemId)
+        {
+            return Encoder.Encode((int)CodeType.User, 1, TownName, Recipient, Sender, ItemId, 0);
+        }
+
+        // Decoder Code \\
 
         private void DecodeButton_Click(object sender, RoutedEventArgs e)
         {
@@ -190,6 +196,66 @@ namespace Animal_Forest_e__Password_Tool
             else // 3 is included in this since it's the same as the default route
             {
                 CodeTypeValue = (A >> 2) & 7;
+            }
+        }
+
+        private void GeneratePasswordButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (CodeTypeComboBox.SelectedIndex > -1 && CodeTypeComboBox.SelectedIndex < 8)
+            {
+                CodeType PasswordCodeType = (CodeType)CodeTypeComboBox.SelectedIndex;
+                if (PasswordCodeType == CodeType.User)
+                {
+                    EncoderResultTextBox.Text = MakeUserCode(PadAFString(TownNameTextBox.Text), PadAFString(RecipientTextBox.Text),
+                        PadAFString(SenderTextBox.Text), ushort.Parse(ItemIdTextBox.Text, System.Globalization.NumberStyles.HexNumber));
+                }
+                else if (PasswordCodeType == CodeType.Monument && DecorationComboBox.SelectedIndex > -1 && DecorationComboBox.SelectedIndex < 15)
+                {
+                    EncoderResultTextBox.Text = MakeMonumentCode(DecorationComboBox.SelectedIndex, int.Parse(YAcreTextBox.Text), int.Parse(XAcreTextBox.Text),
+                        PadAFString(TownNameTextBox.Text), PadAFString(RecipientTextBox.Text), PadAFString(DecorationPriceTextBox.Text));
+                }
+            }
+        }
+
+        private string PadAFString(string Input)
+        {
+            while (Input.Length < 6)
+            {
+                Input += " ";
+            }
+            return Input;
+        }
+
+        private void CodeTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (CodeTypeComboBox.SelectedIndex > -1)
+            {
+                if (CodeTypeComboBox.SelectedIndex == 4)
+                {
+                    Label4.Content = "Sender's Name:";
+                    Label5.Content = "Item ID:";
+                    DecorationComboBox.Visibility = Visibility.Hidden;
+                    DecorationPriceTextBox.Visibility = Visibility.Hidden;
+                    SenderTextBox.Visibility = Visibility.Visible;
+                    ItemIdTextBox.Visibility = Visibility.Visible;
+                    Label6.Visibility = Visibility.Hidden;
+                    Label7.Visibility = Visibility.Hidden;
+                    XAcreTextBox.Visibility = Visibility.Hidden;
+                    YAcreTextBox.Visibility = Visibility.Hidden;
+                }
+                else if (CodeTypeComboBox.SelectedIndex == 7)
+                {
+                    Label4.Content = "Decoration:";
+                    Label5.Content = "Price:";
+                    DecorationComboBox.Visibility = Visibility.Visible;
+                    DecorationPriceTextBox.Visibility = Visibility.Visible;
+                    SenderTextBox.Visibility = Visibility.Hidden;
+                    ItemIdTextBox.Visibility = Visibility.Hidden;
+                    Label6.Visibility = Visibility.Visible;
+                    Label7.Visibility = Visibility.Visible;
+                    XAcreTextBox.Visibility = Visibility.Visible;
+                    YAcreTextBox.Visibility = Visibility.Visible;
+                }
             }
         }
     }

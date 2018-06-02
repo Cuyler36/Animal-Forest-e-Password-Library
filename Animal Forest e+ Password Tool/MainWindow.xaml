@@ -5,12 +5,55 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Animal_Forest_e__Password_Tool"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="400">
+        Title="MainWindow" Height="500" Width="400">
     <Grid>
         <TabControl x:Name="tabControl" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
             <TabItem Header="Generator">
                 <Grid Background="#FFE5E5E5">
-                    <TextBox x:Name="EncoderResultTextBox" IsReadOnly="True" MaxLength="40" HorizontalAlignment="Center" VerticalAlignment="Center" Width="240" Height="50" AcceptsReturn="True" FontSize="18" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                    <TextBox x:Name="EncoderResultTextBox" IsReadOnly="True" MaxLength="40" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0, 0, 0, 20" Width="240" Height="50" AcceptsReturn="True" FontSize="18" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"/>
+                    <Label x:Name="label" Content="Code Type:" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top" FontSize="18"/>
+                    <ComboBox x:Name="CodeTypeComboBox" HorizontalAlignment="Left" Margin="113,17,0,0" VerticalAlignment="Top" Width="200" SelectedIndex="4" FontSize="14">
+                        <ComboBoxItem Content="Famicom"/>
+                        <ComboBoxItem Content="Villager (Old)"/>
+                        <ComboBoxItem Content="e-Reader+ Card"/>
+                        <ComboBoxItem Content="Magazine"/>
+                        <ComboBoxItem Content="Player-to-Player"/>
+                        <ComboBoxItem Content="e-Reader+ Card Mini"/>
+                        <ComboBoxItem Content="Villager"/>
+                        <ComboBoxItem Content="Object Delivery Service"/>
+                    </ComboBox>
+                    <ComboBox x:Name="DecorationComboBox" Visibility="Hidden" FontSize="14" HorizontalAlignment="Left" Margin="116,134,0,0" VerticalAlignment="Top" Width="120" IsEditable="False" SelectedIndex="0">
+                        <ComboBoxItem Content="Park Clock"/>
+                        <ComboBoxItem Content="Gas Lamp"/>
+                        <ComboBoxItem Content="Windpump"/>
+                        <ComboBoxItem Content="Flower Clock"/>
+                        <ComboBoxItem Content="Heliport"/>
+                        <ComboBoxItem Content="Wind Turbine"/>
+                        <ComboBoxItem Content="Pipe Stack"/>
+                        <ComboBoxItem Content="Stonehenge"/>
+                        <ComboBoxItem Content="Egg"/>
+                        <ComboBoxItem Content="Footprints"/>
+                        <ComboBoxItem Content="Geoglyph"/>
+                        <ComboBoxItem Content="Mushroom"/>
+                        <ComboBoxItem Content="Signpost"/>
+                        <ComboBoxItem Content="Well"/>
+                        <ComboBoxItem Content="Fountain"/>
+                    </ComboBox>
+                    <Label FontSize="28" Content="Password" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0, 0, 0, 80"/>
+                    <Button x:Name="GeneratePasswordButton" Content="Generate Password" HorizontalAlignment="Center" Margin="0,0,0,140" VerticalAlignment="Bottom" Width="200" Click="GeneratePasswordButton_Click" />
+                    <Label x:Name="Label2" Content="Recipient's Town Name:" HorizontalAlignment="Left" Margin="10,49,0,0" VerticalAlignment="Top" FontSize="18"/>
+                    <TextBox x:Name="TownNameTextBox" MaxLength="6" HorizontalAlignment="Left" Height="22" Margin="212,57,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" FontSize="14"/>
+                    <Label x:Name="Label3" Content="Recipient's Name:" HorizontalAlignment="Left" Margin="10,88,0,0" VerticalAlignment="Top" FontSize="18"/>
+                    <TextBox x:Name="RecipientTextBox" MaxLength="6" HorizontalAlignment="Left" Height="22" Margin="166,96,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" FontSize="14"/>
+                    <Label x:Name="Label4" Content="Sender's Name:" HorizontalAlignment="Left" Margin="10,127,0,0" VerticalAlignment="Top" FontSize="18"/>
+                    <TextBox x:Name="SenderTextBox" MaxLength="6" HorizontalAlignment="Left" Height="22" Margin="149,135,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" FontSize="14"/>
+                    <Label x:Name="Label5" Content="Item ID:" HorizontalAlignment="Left" Margin="10,166,0,0" VerticalAlignment="Top" FontSize="18"/>
+                    <TextBox x:Name="ItemIdTextBox" MaxLength="4" HorizontalAlignment="Left" Height="22" Margin="87,174,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="48" FontSize="14"/>
+                    <TextBox x:Name="DecorationPriceTextBox" Visibility="Hidden" MaxLength="6" HorizontalAlignment="Left" Height="22" Margin="67,174,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="60" FontSize="14"/>
+                    <Label x:Name="Label6" Content="Y-Acre:" HorizontalAlignment="Left" Margin="10,205,0,0" VerticalAlignment="Top" FontSize="18" Visibility="Hidden"/>
+                    <TextBox x:Name="YAcreTextBox" MaxLength="1" HorizontalAlignment="Left" Height="22" Margin="87,213,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="20" FontSize="14" Visibility="Hidden"/>
+                    <Label x:Name="Label7" Content="X-Acre:" HorizontalAlignment="Left" Margin="128,205,0,0" VerticalAlignment="Top" FontSize="18" Visibility="Hidden"/>
+                    <TextBox x:Name="XAcreTextBox" MaxLength="1" HorizontalAlignment="Left" Height="22" Margin="205,213,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="20" FontSize="14" Visibility="Hidden"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Decoder">
