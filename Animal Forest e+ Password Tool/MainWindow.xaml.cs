@@ -218,28 +218,30 @@ namespace Animal_Forest_e__Password_Tool
             var passwordCodeType = (CodeType) CodeTypeComboBox.SelectedIndex;
             switch (passwordCodeType)
             {
-                case CodeType.Magazine:
+                case CodeType.Magazine when ushort.TryParse(ItemIdTextBox.Text, System.Globalization.NumberStyles.HexNumber, null, out var itemId):
                     EncoderResultTextBox.Text = MakeMagazineCode(PadAFString(TownNameTextBox.Text), PadAFString(RecipientTextBox.Text),
-                        PadAFString(SenderTextBox.Text), ushort.Parse(ItemIdTextBox.Text, System.Globalization.NumberStyles.HexNumber));
+                        PadAFString(SenderTextBox.Text), itemId);
                     break;
-                case CodeType.User:
+                case CodeType.User when ushort.TryParse(ItemIdTextBox.Text, System.Globalization.NumberStyles.HexNumber, null, out var itemId):
                     EncoderResultTextBox.Text = MakeUserCode(PadAFString(TownNameTextBox.Text), PadAFString(RecipientTextBox.Text),
-                        PadAFString(SenderTextBox.Text), ushort.Parse(ItemIdTextBox.Text, System.Globalization.NumberStyles.HexNumber));
+                        PadAFString(SenderTextBox.Text), itemId);
                     break;
-                case CodeType.Monument when DecorationComboBox.SelectedIndex > -1 && DecorationComboBox.SelectedIndex < 15:
-                    EncoderResultTextBox.Text = MakeMonumentCode(DecorationComboBox.SelectedIndex, int.Parse(YAcreTextBox.Text), int.Parse(XAcreTextBox.Text),
+                case CodeType.Monument when DecorationComboBox.SelectedIndex > -1 && DecorationComboBox.SelectedIndex < 15 &&
+                                            int.TryParse(YAcreTextBox.Text, out var acreY) && int.TryParse(XAcreTextBox.Text, out var acreX):
+                    EncoderResultTextBox.Text = MakeMonumentCode(DecorationComboBox.SelectedIndex, acreY, acreX,
                         PadAFString(TownNameTextBox.Text), PadAFString(RecipientTextBox.Text), PadAFString(DecorationPriceTextBox.Text));
                     break;
             }
         }
 
-        private string PadAFString(string Input)
+        // ReSharper disable once InconsistentNaming
+        private static string PadAFString(string input)
         {
-            while (Input.Length < 6)
+            while (input.Length < 6)
             {
-                Input += " ";
+                input += " ";
             }
-            return Input;
+            return input;
         }
 
         private void CodeTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

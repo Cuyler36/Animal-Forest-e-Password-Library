@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Animal_Forest_e__Password_Tool"
         mc:Ignorable="d"
-        Title="MainWindow" Height="500" Width="400">
+        Title="Animal Forest e+ Password Tool" Height="500" Width="400">
     <Grid>
         <TabControl x:Name="tabControl" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
             <TabItem Header="Generator">
