@@ -68,7 +68,16 @@ namespace Animal_Forest_e__Password_Tool
 
         private string MakeUserCode(string TownName, string Recipient, string Sender, ushort ItemId)
         {
+            Console.WriteLine("Town Name: " + TownName);
+            Console.WriteLine("Recipient Name: " + Recipient);
+            Console.WriteLine("Sender Name: " + Sender);
+            Console.WriteLine("Item ID: " + ItemId.ToString("X4"));
             return Encoder.Encode((int)CodeType.User, 1, TownName, Recipient, Sender, ItemId, 0);
+        }
+
+        private string MakeMagazineCode(string SenderTownName, string Sender, string Unknown, ushort ItemId)
+        {
+            return Encoder.Encode((int)CodeType.Magazine, 0, SenderTownName, Sender, Unknown, ItemId, 0);
         }
 
         // Decoder Code \\
@@ -168,7 +177,7 @@ namespace Animal_Forest_e__Password_Tool
                 String4Label.Content = "Price: " + Price.ToString("#,##0") + " Bells";
                 String5Label.Content = "Placement Acre: " + AcreY + "-" + AcreX;
             }
-            else if(Type == CodeType.User)
+            else if(Type == CodeType.User || Type == CodeType.Magazine)
             {
                 Console.WriteLine(string.Format("Town Name: {0}\r\nPlayer Name: {1}\r\nSender Name: {2}\r\nSent Item ID: 0x{3}",
                     TownName, PlayerName, SenderString, PresentItemId.ToString("X4")));
@@ -204,7 +213,12 @@ namespace Animal_Forest_e__Password_Tool
             if (CodeTypeComboBox.SelectedIndex > -1 && CodeTypeComboBox.SelectedIndex < 8)
             {
                 CodeType PasswordCodeType = (CodeType)CodeTypeComboBox.SelectedIndex;
-                if (PasswordCodeType == CodeType.User)
+                if (PasswordCodeType == CodeType.Magazine)
+                {
+                    EncoderResultTextBox.Text = MakeMagazineCode(PadAFString(TownNameTextBox.Text), PadAFString(RecipientTextBox.Text),
+                        PadAFString(SenderTextBox.Text), ushort.Parse(ItemIdTextBox.Text, System.Globalization.NumberStyles.HexNumber));
+                }
+                else if (PasswordCodeType == CodeType.User)
                 {
                     EncoderResultTextBox.Text = MakeUserCode(PadAFString(TownNameTextBox.Text), PadAFString(RecipientTextBox.Text),
                         PadAFString(SenderTextBox.Text), ushort.Parse(ItemIdTextBox.Text, System.Globalization.NumberStyles.HexNumber));

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace PasswordLibrary.Encoder
@@ -130,6 +131,13 @@ namespace PasswordLibrary.Encoder
             Output[0] |= (byte)((Checksum >> 2) & 3);
             Output[1] |= (byte)((Checksum & 3) << 6);
 
+            #if DEBUG
+            for (int i = 0; i < Output.Length; i++)
+            {
+                Console.WriteLine(string.Format("Output[{0}]", i) + ": " + Output[i].ToString("X2"));
+            }
+            #endif
+
             return Output;
         }
 
@@ -215,18 +223,18 @@ namespace PasswordLibrary.Encoder
         public static void mMpswd_bit_mix_code(ref byte[] Data)
         {
             int SwitchType = Data[1] & 0x0F;
-            if (SwitchType >= 0x0C)
+            if (SwitchType > 0x0C)
             {
                 Common.mMpswd_bit_arrange_reverse(ref Data);
                 Common.mMpswd_bit_reverse(ref Data);
                 Common.mMpswd_bit_shift(ref Data, SwitchType * 3);
             }
-            else if (SwitchType >= 0x08)
+            else if (SwitchType > 0x08)
             {
                 Common.mMpswd_bit_arrange_reverse(ref Data);
                 Common.mMpswd_bit_shift(ref Data, -SwitchType * 5);
             }
-            else if (SwitchType >= 0x04)
+            else if (SwitchType > 0x04)
             {
                 Common.mMpswd_bit_shift(ref Data, -SwitchType * 5);
                 Common.mMpswd_bit_arrange_reverse(ref Data);
@@ -288,6 +296,44 @@ namespace PasswordLibrary.Encoder
             }
         }
 
+#if DEBUG
+        public static string Encode(int CodeType, int Unknown1, string RecipientTown, string Recipient, string Sender, ushort ItemId, int Unknown2)
+        {
+            byte[] PasswordData = mMpswd_make_passcode(CodeType, Unknown1, RecipientTown, Recipient, Sender, ItemId, Unknown2);
+            PrintByteBuffer("mMpswd_make_passcode", PasswordData);
+            mMpswd_substitution_cipher(ref PasswordData);
+            PrintByteBuffer("mMpswd_substitution_cipher", PasswordData);
+            Common.mMpswd_transposition_cipher(ref PasswordData, true, 0);
+            PrintByteBuffer("mMpswd_transposition_cipher", PasswordData);
+            mMpswd_bit_shuffle(ref PasswordData, 0); // this doesn't change the last byte. Is that necessary? Doesn't seem to be.
+            PrintByteBuffer("mMpswd_bit_shuffle", PasswordData);
+            mMpswd_chg_RSA_cipher(ref PasswordData);
+            PrintByteBuffer("mMpswd_chg_RSA_cipher", PasswordData);
+            mMpswd_bit_mix_code(ref PasswordData); // the problem appears to be in the bit mix function.
+            PrintByteBuffer("mMpswd_bit_mix_code", PasswordData);
+            mMpswd_bit_shuffle(ref PasswordData, 1);
+            PrintByteBuffer("mMpswd_bit_shuffle", PasswordData);
+            Common.mMpswd_transposition_cipher(ref PasswordData, false, 1);
+            PrintByteBuffer("mMpswd_transposition_cipher", PasswordData);
+            byte[] Password = mMpswd_chg_6bits_code(PasswordData);
+            PrintByteBuffer("mMpswd_chg_6bits_code", Password);
+            mMpswd_chg_common_font_code(ref Password);
+            PrintByteBuffer("mMpswd_chg_common_font_code", PasswordData);
+
+            // Construct password string
+            string PasswordString = "";
+            for (int i = 0; i < 32; i++)
+            {
+                if (i == 16)
+                {
+                    PasswordString += "\r\n";
+                }
+                PasswordString += Common.AFe_CharList[Password[i]];
+            }
+
+            return PasswordString;
+        }
+#else
         public static string Encode(int CodeType, int Unknown1, string RecipientTown, string Recipient, string Sender, ushort ItemId, int Unknown2)
         {
             byte[] PasswordData = mMpswd_make_passcode(CodeType, Unknown1, RecipientTown, Recipient, Sender, ItemId, Unknown2);
@@ -314,5 +360,8 @@ namespace PasswordLibrary.Encoder
 
             return PasswordString;
         }
+#endif
+        private static void PrintByteBuffer(string stage, IEnumerable<byte> buffer) =>
+            Console.WriteLine((stage + ":").PadRight(32) + buffer.Aggregate("", (current, b) => current + b.ToString("X2") + " "));
     }
 }
