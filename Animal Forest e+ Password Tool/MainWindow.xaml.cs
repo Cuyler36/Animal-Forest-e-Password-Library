@@ -17,7 +17,7 @@ using PasswordLibrary.Encoder;
 
 namespace Animal_Forest_e__Password_Tool
 {
-    public enum CodeType : int
+    public enum CodeType
     {
         Famicom = 0, // NES
         NPC = 1, // Original NPC Code
@@ -29,7 +29,7 @@ namespace Animal_Forest_e__Password_Tool
         Monument = 7 // Town Decorations (from Object Delivery Service, see: https://www.nintendo.co.jp/ngc/gaej/obje/)
     }
 
-    public enum MonumentType : int
+    public enum MonumentType
     {
         ParkClock = 0,
         GasLamp = 1,
@@ -144,49 +144,52 @@ namespace Animal_Forest_e__Password_Tool
 
         private void ParseDecodedPassword(byte[] Data)
         {
-            byte A = Data[0];
-            int X = (A >> 5) & 7;
-            int Y = (A << 2) & 0x0C;
-            int U = Y | ((Data[1] >> 6) & 3);
-            int r28 = Data[2];
-            ushort Unknown = (ushort)((Data[15] << 8) | Data[16]);
-            ushort PresentItemId = (ushort)((Data[21] << 8) | Data[22]);
+            var A = Data[0];
+            var X = (A >> 5) & 7;
+            var Y = (A << 2) & 0x0C;
+            var U = Y | ((Data[1] >> 6) & 3);
+            var r28 = Data[2];
+            var Unknown = (ushort)((Data[15] << 8) | Data[16]);
+            var PresentItemId = (ushort)((Data[21] << 8) | Data[22]);
 
             // TODO: Figure out Acre X & Y coordinates for monument
 
-            string TownName = ByteArrayToString(Data, 3, 6);
-            string PlayerName = ByteArrayToString(Data, 9, 6);
-            string SenderString = ByteArrayToString(Data, 15, 6);
+            var TownName = ByteArrayToString(Data, 3, 6);
+            var PlayerName = ByteArrayToString(Data, 9, 6);
+            var SenderString = ByteArrayToString(Data, 15, 6);
 
             Console.WriteLine("Code Type: " + X);
             CodeTypeLabel.Content = "Code Type: " + CodeTypes[X];
 
-            CodeType Type = (CodeType)X;
+            var type = (CodeType)X;
 
-            if (Type == CodeType.Monument && uint.TryParse(SenderString, out uint Price)) // 7 = Monument (Town Decoration)
+            switch (type)
             {
-                int AcreX = Data[1] & 7;
-                int AcreY = (Data[1] >> 3) & 7;
-                Console.WriteLine(string.Format("Town Name: {0}\r\nPlayer Name: {1}\r\nDecoration Price: {2}\r\nTown Decoration: {6} [0x{3}]\r\nPlacement Acre [Y-X]: {4}-{5}",
-                    TownName, PlayerName, Price.ToString("#,##0"),
-                    PresentItemId < 0x5853 ? (PresentItemId + 0x5853).ToString("X4") : PresentItemId.ToString("X4"), AcreY, AcreX, MonumentNames[PresentItemId % 15]));
+                // 7 = Monument (Town Decoration)
+                case CodeType.Monument when uint.TryParse(SenderString, out var price):
+                    int AcreX = Data[1] & 7;
+                    int AcreY = (Data[1] >> 3) & 7;
+                    Console.WriteLine(string.Format("Town Name: {0}\r\nPlayer Name: {1}\r\nDecoration Price: {2}\r\nTown Decoration: {6} [0x{3}]\r\nPlacement Acre [Y-X]: {4}-{5}",
+                        TownName, PlayerName, price.ToString("#,##0"),
+                        PresentItemId < 0x5853 ? (PresentItemId + 0x5853).ToString("X4") : PresentItemId.ToString("X4"), AcreY, AcreX, MonumentNames[PresentItemId % 15]));
 
-                String1Label.Content = "Recipient's Town Name: " + TownName;
-                String2Label.Content = "Recipient's Name: " + PlayerName;
-                String3Label.Content = "Town Decoration: " + MonumentNames[PresentItemId % 15];
-                String4Label.Content = "Price: " + Price.ToString("#,##0") + " Bells";
-                String5Label.Content = "Placement Acre: " + AcreY + "-" + AcreX;
-            }
-            else if(Type == CodeType.User || Type == CodeType.Magazine)
-            {
-                Console.WriteLine(string.Format("Town Name: {0}\r\nPlayer Name: {1}\r\nSender Name: {2}\r\nSent Item ID: 0x{3}",
-                    TownName, PlayerName, SenderString, PresentItemId.ToString("X4")));
+                    String1Label.Content = "Recipient's Town Name: " + TownName;
+                    String2Label.Content = "Recipient's Name: " + PlayerName;
+                    String3Label.Content = "Town Decoration: " + MonumentNames[PresentItemId % 15];
+                    String4Label.Content = "Price: " + price.ToString("#,##0") + " Bells";
+                    String5Label.Content = "Placement Acre: " + AcreY + "-" + AcreX;
+                    break;
+                case CodeType.User:
+                case CodeType.Magazine:
+                    Console.WriteLine(string.Format("Town Name: {0}\r\nPlayer Name: {1}\r\nSender Name: {2}\r\nSent Item ID: 0x{3}",
+                        TownName, PlayerName, SenderString, PresentItemId.ToString("X4")));
 
-                String1Label.Content = "Recipient's Town Name: " + TownName;
-                String2Label.Content = "Recipient's Name: " + PlayerName;
-                String3Label.Content = "Sender's Name: " + SenderString;
-                String4Label.Content = "Item ID: 0x" + PresentItemId.ToString("X4");
-                String5Label.Content = "";
+                    String1Label.Content = "Recipient's Town Name: " + TownName;
+                    String2Label.Content = "Recipient's Name: " + PlayerName;
+                    String3Label.Content = "Sender's Name: " + SenderString;
+                    String4Label.Content = "Item ID: 0x" + PresentItemId.ToString("X4");
+                    String5Label.Content = "";
+                    break;
             }
 
             int CodeTypeValue = 0;
@@ -210,24 +213,23 @@ namespace Animal_Forest_e__Password_Tool
 
         private void GeneratePasswordButton_Click(object sender, RoutedEventArgs e)
         {
-            if (CodeTypeComboBox.SelectedIndex > -1 && CodeTypeComboBox.SelectedIndex < 8)
+            if (CodeTypeComboBox.SelectedIndex <= -1 || CodeTypeComboBox.SelectedIndex >= 8) return;
+
+            var passwordCodeType = (CodeType) CodeTypeComboBox.SelectedIndex;
+            switch (passwordCodeType)
             {
-                CodeType PasswordCodeType = (CodeType)CodeTypeComboBox.SelectedIndex;
-                if (PasswordCodeType == CodeType.Magazine)
-                {
+                case CodeType.Magazine:
                     EncoderResultTextBox.Text = MakeMagazineCode(PadAFString(TownNameTextBox.Text), PadAFString(RecipientTextBox.Text),
                         PadAFString(SenderTextBox.Text), ushort.Parse(ItemIdTextBox.Text, System.Globalization.NumberStyles.HexNumber));
-                }
-                else if (PasswordCodeType == CodeType.User)
-                {
+                    break;
+                case CodeType.User:
                     EncoderResultTextBox.Text = MakeUserCode(PadAFString(TownNameTextBox.Text), PadAFString(RecipientTextBox.Text),
                         PadAFString(SenderTextBox.Text), ushort.Parse(ItemIdTextBox.Text, System.Globalization.NumberStyles.HexNumber));
-                }
-                else if (PasswordCodeType == CodeType.Monument && DecorationComboBox.SelectedIndex > -1 && DecorationComboBox.SelectedIndex < 15)
-                {
+                    break;
+                case CodeType.Monument when DecorationComboBox.SelectedIndex > -1 && DecorationComboBox.SelectedIndex < 15:
                     EncoderResultTextBox.Text = MakeMonumentCode(DecorationComboBox.SelectedIndex, int.Parse(YAcreTextBox.Text), int.Parse(XAcreTextBox.Text),
                         PadAFString(TownNameTextBox.Text), PadAFString(RecipientTextBox.Text), PadAFString(DecorationPriceTextBox.Text));
-                }
+                    break;
             }
         }
 
@@ -242,34 +244,39 @@ namespace Animal_Forest_e__Password_Tool
 
         private void CodeTypeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (CodeTypeComboBox.SelectedIndex > -1)
+            if (CodeTypeComboBox.SelectedIndex <= -1) return;
+
+            switch ((CodeType) CodeTypeComboBox.SelectedIndex)
             {
-                if (CodeTypeComboBox.SelectedIndex == 4)
-                {
+                case CodeType.Magazine:
+                    Label2.Content = "Sender's Town Name:";
+                    Label3.Content = "Sender's Name:";
+                    Label4.Content = "Unknown:";
+                    DecorationComboBox.Visibility = DecorationPriceTextBox.Visibility = Visibility.Hidden;
+                    SenderTextBox.Visibility = ItemIdTextBox.Visibility = Visibility.Visible;
+                    Label6.Visibility = Label7.Visibility = Visibility.Hidden;
+                    XAcreTextBox.Visibility = YAcreTextBox.Visibility = Visibility.Hidden;
+                    break;
+                case CodeType.User:
+                    Label2.Content = "Recipient's Town Name:";
+                    Label3.Content = "Recipient's Name:";
                     Label4.Content = "Sender's Name:";
                     Label5.Content = "Item ID:";
-                    DecorationComboBox.Visibility = Visibility.Hidden;
-                    DecorationPriceTextBox.Visibility = Visibility.Hidden;
-                    SenderTextBox.Visibility = Visibility.Visible;
-                    ItemIdTextBox.Visibility = Visibility.Visible;
-                    Label6.Visibility = Visibility.Hidden;
-                    Label7.Visibility = Visibility.Hidden;
-                    XAcreTextBox.Visibility = Visibility.Hidden;
-                    YAcreTextBox.Visibility = Visibility.Hidden;
-                }
-                else if (CodeTypeComboBox.SelectedIndex == 7)
-                {
+                    DecorationComboBox.Visibility = DecorationPriceTextBox.Visibility = Visibility.Hidden;
+                    SenderTextBox.Visibility = ItemIdTextBox.Visibility = Visibility.Visible;
+                    Label6.Visibility =  Label7.Visibility = Visibility.Hidden;
+                    XAcreTextBox.Visibility = YAcreTextBox.Visibility = Visibility.Hidden;
+                    break;
+                case CodeType.Monument:
+                    Label2.Content = "Recipient's Town Name:";
+                    Label3.Content = "Recipient's Name:";
                     Label4.Content = "Decoration:";
                     Label5.Content = "Price:";
-                    DecorationComboBox.Visibility = Visibility.Visible;
-                    DecorationPriceTextBox.Visibility = Visibility.Visible;
-                    SenderTextBox.Visibility = Visibility.Hidden;
-                    ItemIdTextBox.Visibility = Visibility.Hidden;
-                    Label6.Visibility = Visibility.Visible;
-                    Label7.Visibility = Visibility.Visible;
-                    XAcreTextBox.Visibility = Visibility.Visible;
-                    YAcreTextBox.Visibility = Visibility.Visible;
-                }
+                    DecorationComboBox.Visibility = DecorationPriceTextBox.Visibility = Visibility.Visible;
+                    SenderTextBox.Visibility = ItemIdTextBox.Visibility = Visibility.Hidden;
+                    Label6.Visibility = Label7.Visibility = Visibility.Visible;
+                    XAcreTextBox.Visibility = YAcreTextBox.Visibility = Visibility.Visible;
+                    break;
             }
         }
     }

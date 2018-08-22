@@ -333,6 +333,9 @@ namespace PasswordLibrary.Encoder
 
             return PasswordString;
         }
+
+        private static void PrintByteBuffer(string stage, IEnumerable<byte> buffer) =>
+            Console.WriteLine((stage + ":").PadRight(32) + buffer.Aggregate("", (current, b) => current + b.ToString("X2") + " "));
 #else
         public static string Encode(int CodeType, int Unknown1, string RecipientTown, string Recipient, string Sender, ushort ItemId, int Unknown2)
         {
@@ -361,7 +364,5 @@ namespace PasswordLibrary.Encoder
             return PasswordString;
         }
 #endif
-        private static void PrintByteBuffer(string stage, IEnumerable<byte> buffer) =>
-            Console.WriteLine((stage + ":").PadRight(32) + buffer.Aggregate("", (current, b) => current + b.ToString("X2") + " "));
     }
 }
