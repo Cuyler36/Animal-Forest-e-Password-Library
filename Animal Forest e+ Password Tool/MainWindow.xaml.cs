@@ -169,9 +169,11 @@ namespace Animal_Forest_e__Password_Tool
                 case CodeType.Monument when uint.TryParse(SenderString, out var price):
                     int AcreX = Data[1] & 7;
                     int AcreY = (Data[1] >> 3) & 7;
-                    Console.WriteLine(string.Format("Town Name: {0}\r\nPlayer Name: {1}\r\nDecoration Price: {2}\r\nTown Decoration: {6} [0x{3}]\r\nPlacement Acre [Y-X]: {4}-{5}",
-                        TownName, PlayerName, price.ToString("#,##0"),
-                        PresentItemId < 0x5853 ? (PresentItemId + 0x5853).ToString("X4") : PresentItemId.ToString("X4"), AcreY, AcreX, MonumentNames[PresentItemId % 15]));
+                    Console.WriteLine(
+                        "Town Name: {0}\r\nPlayer Name: {1}\r\nDecoration Price: {2:#,##0}\r\nTown Decoration: {6} [0x{3}]\r\nPlacement Acre [Y-X]: {4}-{5}",
+                        TownName, PlayerName, price,
+                        PresentItemId < 0x5853 ? (PresentItemId + 0x5853).ToString("X4") : PresentItemId.ToString("X4"),
+                        AcreY, AcreX, MonumentNames[PresentItemId % 15]);
 
                     String1Label.Content = "Recipient's Town Name: " + TownName;
                     String2Label.Content = "Recipient's Name: " + PlayerName;
@@ -181,8 +183,8 @@ namespace Animal_Forest_e__Password_Tool
                     break;
                 case CodeType.User:
                 case CodeType.Magazine:
-                    Console.WriteLine(string.Format("Town Name: {0}\r\nPlayer Name: {1}\r\nSender Name: {2}\r\nSent Item ID: 0x{3}",
-                        TownName, PlayerName, SenderString, PresentItemId.ToString("X4")));
+                    Console.WriteLine(
+                        $"Town Name: {TownName}\r\nPlayer Name: {PlayerName}\r\nSender Name: {SenderString}\r\nSent Item ID: 0x{PresentItemId:X4}");
 
                     String1Label.Content = "Recipient's Town Name: " + TownName;
                     String2Label.Content = "Recipient's Name: " + PlayerName;
