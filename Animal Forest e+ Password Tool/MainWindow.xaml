@@ -54,6 +54,14 @@
                     <TextBox x:Name="YAcreTextBox" MaxLength="1" HorizontalAlignment="Left" Height="22" Margin="87,213,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="20" FontSize="14" Visibility="Hidden"/>
                     <Label x:Name="Label7" Content="X-Acre:" HorizontalAlignment="Left" Margin="128,205,0,0" VerticalAlignment="Top" FontSize="18" Visibility="Hidden"/>
                     <TextBox x:Name="XAcreTextBox" MaxLength="1" HorizontalAlignment="Left" Height="22" Margin="205,213,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="20" FontSize="14" Visibility="Hidden"/>
+                    <Label x:Name="HitRateLabel" Content="Win Percentage:" HorizontalAlignment="Left" Margin="10,205,0,0" VerticalAlignment="Top" FontSize="18" Visibility="Hidden"/>
+                    <ComboBox x:Name="HitRateComboBox" Visibility="Hidden" FontSize="14" HorizontalAlignment="Left" Margin="156,210,0,0" VerticalAlignment="Top" Width="70" IsEditable="False" SelectedIndex="0">
+                        <ComboBoxItem Content="0%"/>
+                        <ComboBoxItem Content="30%"/>
+                        <ComboBoxItem Content="60%"/>
+                        <ComboBoxItem Content="80%"/>
+                        <ComboBoxItem Content="100%"/>
+                    </ComboBox>
                 </Grid>
             </TabItem>
             <TabItem Header="Decoder">

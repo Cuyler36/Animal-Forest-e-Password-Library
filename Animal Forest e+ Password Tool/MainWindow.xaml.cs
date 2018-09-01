@@ -1,34 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
+using PasswordLibrary;
 using PasswordLibrary.Decoder;
 using PasswordLibrary.Encoder;
 
 namespace Animal_Forest_e__Password_Tool
 {
-    public enum CodeType
-    {
-        Famicom = 0, // NES
-        NPC = 1, // Original NPC Code
-        Card_E = 2, // NOTE: This is a stubbed method (just returns 4)
-        Magazine = 3, // Contest?
-        User = 4, // Player-to-Player
-        Card_E_Mini = 5, // Only one data strip?
-        New_NPC = 6, // Using the new password system?
-        Monument = 7 // Town Decorations (from Object Delivery Service, see: https://www.nintendo.co.jp/ngc/gaej/obje/)
-    }
-
     public enum MonumentType
     {
         ParkClock = 0,
@@ -48,11 +29,14 @@ namespace Animal_Forest_e__Password_Tool
         Fountain = 14
     }
 
+    /// <inheritdoc cref="Window" />
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow
     {
+        private static readonly int[] HitRateIndexAdjust = { 3, 2, 1, 0, 4 };
+
         public MainWindow()
         {
             InitializeComponent();
@@ -61,155 +45,138 @@ namespace Animal_Forest_e__Password_Tool
 
         // Encoder Code \\
 
-        private string MakeMonumentCode(int MonumentType, int AcreY, int AcreX, string TownName, string Recipient, string Price)
-        {
-            return Encoder.Encode((int)CodeType.Monument, 0, TownName, Recipient, Price, (ushort)(MonumentType % 15), ((AcreY & 7) << 3) | (AcreX & 7));
-        }
+        private static string MakeMonumentCode(int monumentType, int acreY, int acreX, string townName,
+            string recipient, string price) => Encoder.Encode(CodeType.Monument, 0, townName, recipient, price,
+            (ushort) (monumentType % 15), ((acreY & 7) << 3) | (acreX & 7));
 
-        private string MakeUserCode(string TownName, string Recipient, string Sender, ushort ItemId)
-        {
-            Console.WriteLine("Town Name: " + TownName);
-            Console.WriteLine("Recipient Name: " + Recipient);
-            Console.WriteLine("Sender Name: " + Sender);
-            Console.WriteLine("Item ID: " + ItemId.ToString("X4"));
-            return Encoder.Encode((int)CodeType.User, 1, TownName, Recipient, Sender, ItemId, 0);
-        }
+        private static string MakeUserCode(string townName, string recipient, string sender, ushort itemId) =>
+            Encoder.Encode(CodeType.User, 1, townName, recipient, sender, itemId, 0);
 
-        private string MakeMagazineCode(string SenderTownName, string Sender, string Unknown, ushort ItemId)
-        {
-            return Encoder.Encode((int)CodeType.Magazine, 0, SenderTownName, Sender, Unknown, ItemId, 0);
-        }
+        private static string MakeMagazineCode(string senderTownName, string sender, string unknown, ushort itemId, int hitRateIndex) =>
+            Encoder.Encode(CodeType.Magazine, hitRateIndex, senderTownName, sender, unknown, itemId, 0);
+
+        private static string MakeNewNpcCode(string recepiantTownName, string recepiantName, string senderName, ushort itemId) =>
+            Encoder.Encode(CodeType.New_NPC, 0, recepiantTownName, recepiantName, senderName, itemId, 0);
+
+        private static string MakeFamicomCode(string recepiantTownName, string recepiantName, string senderName, ushort itemId) =>
+            Encoder.Encode(CodeType.Famicom, 0, recepiantTownName, recepiantName, senderName, itemId, 0);
 
         // Decoder Code \\
 
         private void DecodeButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!string.IsNullOrEmpty(DecoderTextBox.Text))
-            {
-                string SecretCode = DecoderTextBox.Text.Replace("\r", "").Replace("\n", "");
-                if (ContainsInvalidCharacters(SecretCode) == false)
-                {
-                    // TODO: Add some way of displaying the info
-                    byte[] DecoderResult = Decoder.Decode(SecretCode);
-                    ParseDecodedPassword(DecoderResult);
-                }
-            }
+            if (string.IsNullOrEmpty(DecoderTextBox.Text)) return;
+
+            var secretCode = DecoderTextBox.Text.Replace("\r", "").Replace("\n", "");
+            if (ContainsInvalidCharacters(secretCode)) return;
+
+            // TODO: Add some way of displaying the info
+            var decoderResult = Decoder.Decode(secretCode);
+            ParseDecodedPassword(decoderResult);
         }
 
-        private bool ContainsInvalidCharacters(string Text)
-        {
-            for (int i = 0; i < Text.Length; i++)
-            {
-                if (Array.IndexOf(PasswordLibrary.Common.AFe_CharList, Text.Substring(i, 1)) < 0)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
+        private static bool ContainsInvalidCharacters(string text) => text.Where((t, i) =>
+            Array.IndexOf(PasswordLibrary.Common.AFe_CharList, text.Substring(i, 1)) < 0).Any();
 
-        private readonly string[] MonumentNames = new string[15]
-        {
+        private static readonly string[] MonumentNames = {
             "Park Clock", "Gas Lamp", "Windpump", "Flower Clock", "Heliport",
             "Wind Turbine", "Pipe Stack", "Stonehenge", "Egg", "Footprints",
             "Geoglyph", "Mushroom", "Signpost", "Well", "Fountain"
         };
 
-        private readonly string[] CodeTypes = new string[8]
+        private static void PrintByteArray(IEnumerable<byte> input)
         {
-            "Famicom", "Villager (Old)", "E-Reader+ Card", "Magazine", "Player-to-Player", "E-Reader+ Card (Mini)", "Villager", "Object Delivery Service"
-        };
-
-        private void PrintByteArray(byte[] Input)
-        {
-            for (int i = 0; i < Input.Length; i++)
+            foreach (var b in input)
             {
-                Console.Write(Input[i].ToString("X2") + " ");
+                Console.Write(b.ToString("X2") + " ");
             }
+
             Console.Write("\r\n\r\n");
         }
 
-        private string ByteArrayToString(byte[] Data, int StartIdx = 0, int Length = -1)
+        private static void mMpswd_new_password(in byte[] passwordData)
         {
-            Length = Length == -1 ? Data.Length : Length;
 
-            string Output = "";
-            for (int i = StartIdx; i < StartIdx + Length; i++)
-            {
-                Output += PasswordLibrary.Common.AFe_CharList[Data[i]];
-            }
-
-            return Output;
         }
 
-        private void ParseDecodedPassword(byte[] Data)
+        private static string ByteArrayToString(IReadOnlyList<byte> data, int startIdx = 0, int length = -1)
         {
-            var A = Data[0];
-            var X = (A >> 5) & 7;
-            var Y = (A << 2) & 0x0C;
-            var U = Y | ((Data[1] >> 6) & 3);
-            var r28 = Data[2];
-            var Unknown = (ushort)((Data[15] << 8) | Data[16]);
-            var PresentItemId = (ushort)((Data[21] << 8) | Data[22]);
+            length = length == -1 ? data.Count : length;
+
+            var output = "";
+            for (var i = startIdx; i < startIdx + length; i++)
+            {
+                output += PasswordLibrary.Common.AFe_CharList[data[i]];
+            }
+
+            return output;
+        }
+
+        private void ParseDecodedPassword(byte[] data)
+        {
+            var codeType = (CodeType) ((data[0] >> 5) & 7);
+            var checksum = ((data[0] << 2) & 0x0C) | ((data[1] >> 6) & 3);
+            var r28 = data[2];
+            var unknown = (ushort)((data[15] << 8) | data[16]);
+            var presentItemId = (ushort)((data[21] << 8) | data[22]);
 
             // TODO: Figure out Acre X & Y coordinates for monument
 
-            var TownName = ByteArrayToString(Data, 3, 6);
-            var PlayerName = ByteArrayToString(Data, 9, 6);
-            var SenderString = ByteArrayToString(Data, 15, 6);
+            var townName = ByteArrayToString(data, 3, 6);
+            var playerName = ByteArrayToString(data, 9, 6);
+            var senderString = ByteArrayToString(data, 15, 6);
 
-            Console.WriteLine("Code Type: " + X);
-            CodeTypeLabel.Content = "Code Type: " + CodeTypes[X];
+            Console.WriteLine("Code Type: " + codeType);
+            CodeTypeLabel.Content = "Code Type: " + codeType;
 
-            var type = (CodeType)X;
-
-            switch (type)
+            switch (codeType)
             {
-                // 7 = Monument (Town Decoration)
-                case CodeType.Monument when uint.TryParse(SenderString, out var price):
-                    int AcreX = Data[1] & 7;
-                    int AcreY = (Data[1] >> 3) & 7;
+                case CodeType.Monument when uint.TryParse(senderString, out var price):
+                    var acreX = data[1] & 7;
+                    var acreY = (data[1] >> 3) & 7;
                     Console.WriteLine(
                         "Town Name: {0}\r\nPlayer Name: {1}\r\nDecoration Price: {2:#,##0}\r\nTown Decoration: {6} [0x{3}]\r\nPlacement Acre [Y-X]: {4}-{5}",
-                        TownName, PlayerName, price,
-                        PresentItemId < 0x5853 ? (PresentItemId + 0x5853).ToString("X4") : PresentItemId.ToString("X4"),
-                        AcreY, AcreX, MonumentNames[PresentItemId % 15]);
+                        townName, playerName, price,
+                        presentItemId < 0x5853 ? (presentItemId + 0x5853).ToString("X4") : presentItemId.ToString("X4"),
+                        acreY, acreX, MonumentNames[presentItemId % 15]);
 
-                    String1Label.Content = "Recipient's Town Name: " + TownName;
-                    String2Label.Content = "Recipient's Name: " + PlayerName;
-                    String3Label.Content = "Town Decoration: " + MonumentNames[PresentItemId % 15];
+                    String1Label.Content = "Recipient's Town Name: " + townName;
+                    String2Label.Content = "Recipient's Name: " + playerName;
+                    String3Label.Content = "Town Decoration: " + MonumentNames[presentItemId % 15];
                     String4Label.Content = "Price: " + price.ToString("#,##0") + " Bells";
-                    String5Label.Content = "Placement Acre: " + AcreY + "-" + AcreX;
+                    String5Label.Content = "Placement Acre: " + acreY + "-" + acreX;
                     break;
                 case CodeType.User:
                 case CodeType.Magazine:
                     Console.WriteLine(
-                        $"Town Name: {TownName}\r\nPlayer Name: {PlayerName}\r\nSender Name: {SenderString}\r\nSent Item ID: 0x{PresentItemId:X4}");
+                        $"Town Name: {townName}\r\nPlayer Name: {playerName}\r\nSender Name: {senderString}\r\nSent Item ID: 0x{presentItemId:X4}");
 
-                    String1Label.Content = "Recipient's Town Name: " + TownName;
-                    String2Label.Content = "Recipient's Name: " + PlayerName;
-                    String3Label.Content = "Sender's Name: " + SenderString;
-                    String4Label.Content = "Item ID: 0x" + PresentItemId.ToString("X4");
+                    String1Label.Content = "Recipient's Town Name: " + townName;
+                    String2Label.Content = "Recipient's Name: " + playerName;
+                    String3Label.Content = "Sender's Name: " + senderString;
+                    String4Label.Content = "Item ID: 0x" + presentItemId.ToString("X4");
                     String5Label.Content = "";
                     break;
             }
 
-            int CodeTypeValue = 0;
+            var codeTypeValue = 0;
 
-            if (X == 7)
+            switch (codeType)
             {
-                CodeTypeValue = (A >> 2) & 7;
-                // There's more here under mMpswd_new_password
-                int AcreX = Data[1] & 7;
-                int AcreY = (Data[1] >> 3) & 7;
-            }
-            else if (X >= 2 && X < 7)
-            {
-                CodeTypeValue = (A >> 2) & 3;
-            }
-            else // 3 is included in this since it's the same as the default route
-            {
-                CodeTypeValue = (A >> 2) & 7;
+                case CodeType.Famicom:
+                case CodeType.NPC:
+                case CodeType.Magazine:
+                    codeTypeValue = (data[0] >> 2) & 7;
+                    break;
+                case CodeType.Card_E:
+                case CodeType.Card_E_Mini:
+                case CodeType.User:
+                case CodeType.New_NPC:
+                    codeTypeValue = (data[0] >> 2) & 3;
+                    break;
+                case CodeType.Monument:
+                    codeTypeValue = (data[0] >> 2) & 7;
+                    break;
             }
         }
 
@@ -220,9 +187,10 @@ namespace Animal_Forest_e__Password_Tool
             var passwordCodeType = (CodeType) CodeTypeComboBox.SelectedIndex;
             switch (passwordCodeType)
             {
-                case CodeType.Magazine when ushort.TryParse(ItemIdTextBox.Text, System.Globalization.NumberStyles.HexNumber, null, out var itemId):
+                case CodeType.Magazine when ushort.TryParse(ItemIdTextBox.Text, System.Globalization.NumberStyles.HexNumber, null, out var itemId) &&
+                                            HitRateComboBox.SelectedIndex > -1 && HitRateComboBox.SelectedIndex < 5:
                     EncoderResultTextBox.Text = MakeMagazineCode(PadAFString(TownNameTextBox.Text), PadAFString(RecipientTextBox.Text),
-                        PadAFString(SenderTextBox.Text), itemId);
+                        PadAFString(SenderTextBox.Text), itemId, HitRateIndexAdjust[HitRateComboBox.SelectedIndex]);
                     break;
                 case CodeType.User when ushort.TryParse(ItemIdTextBox.Text, System.Globalization.NumberStyles.HexNumber, null, out var itemId):
                     EncoderResultTextBox.Text = MakeUserCode(PadAFString(TownNameTextBox.Text), PadAFString(RecipientTextBox.Text),
@@ -256,10 +224,12 @@ namespace Animal_Forest_e__Password_Tool
                     Label2.Content = "Sender's Town Name:";
                     Label3.Content = "Sender's Name:";
                     Label4.Content = "Unknown:";
+                    Label5.Content = "Item ID:";
                     DecorationComboBox.Visibility = DecorationPriceTextBox.Visibility = Visibility.Hidden;
                     SenderTextBox.Visibility = ItemIdTextBox.Visibility = Visibility.Visible;
                     Label6.Visibility = Label7.Visibility = Visibility.Hidden;
                     XAcreTextBox.Visibility = YAcreTextBox.Visibility = Visibility.Hidden;
+                    HitRateLabel.Visibility = HitRateComboBox.Visibility = Visibility.Visible;
                     break;
                 case CodeType.User:
                     Label2.Content = "Recipient's Town Name:";
@@ -270,6 +240,7 @@ namespace Animal_Forest_e__Password_Tool
                     SenderTextBox.Visibility = ItemIdTextBox.Visibility = Visibility.Visible;
                     Label6.Visibility =  Label7.Visibility = Visibility.Hidden;
                     XAcreTextBox.Visibility = YAcreTextBox.Visibility = Visibility.Hidden;
+                    HitRateLabel.Visibility = HitRateComboBox.Visibility = Visibility.Hidden;
                     break;
                 case CodeType.Monument:
                     Label2.Content = "Recipient's Town Name:";
@@ -280,6 +251,7 @@ namespace Animal_Forest_e__Password_Tool
                     SenderTextBox.Visibility = ItemIdTextBox.Visibility = Visibility.Hidden;
                     Label6.Visibility = Label7.Visibility = Visibility.Visible;
                     XAcreTextBox.Visibility = YAcreTextBox.Visibility = Visibility.Visible;
+                    HitRateLabel.Visibility = HitRateComboBox.Visibility = Visibility.Hidden;
                     break;
             }
         }

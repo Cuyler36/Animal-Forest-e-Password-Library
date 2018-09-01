@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 
+// ReSharper disable once CheckNamespace
 namespace PasswordLibrary.Decoder
 {
     public class Decoder

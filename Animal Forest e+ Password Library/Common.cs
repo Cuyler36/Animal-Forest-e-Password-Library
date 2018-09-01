@@ -1,7 +1,21 @@
 ﻿using System;
+using System.Linq;
 
+// ReSharper disable once CheckNamespace
 namespace PasswordLibrary
 {
+    public enum CodeType
+    {
+        Famicom = 0, // NES
+        NPC = 1, // Original NPC Code
+        Card_E = 2, // NOTE: This is a stubbed method (just returns 4)
+        Magazine = 3, // Contest?
+        User = 4, // Player-to-Player
+        Card_E_Mini = 5, // Only one data strip?
+        New_NPC = 6, // Using the new password system?
+        Monument = 7 // Town Decorations (from Object Delivery Service, see: https://www.nintendo.co.jp/ngc/gaej/obje/)
+    }
+
     public static class Common
     {
         // Character List
@@ -377,24 +391,25 @@ namespace PasswordLibrary
                 mMpswd_prime_number[Data[0xC]], mMpswd_select_idx_table[ByteTable]);
         }
 
-        public static bool mMpswd_new_password_zuru_check(int SavedZuru, int CodeType, string Reciepiant, string TownName, string Sender, ushort ItemId, int NpcCode, int Unknown)
+        public static bool mMpswd_new_password_zuru_check(int checksum, int CodeType, string Reciepiant, string TownName, string Sender, ushort ItemId, int NpcCode, int Unknown)
         {
-            bool Invalid = true;
-            if (CodeType != 2 && CodeType < 8)
-            {
-                int Zuru = 0;
-                Zuru += GetStringByteValue(Reciepiant);
-                Zuru += GetStringByteValue(TownName);
-                Zuru += GetStringByteValue(Sender);
-                Zuru += ItemId;
+            if (CodeType == 2 || CodeType >= 8) return true;
 
-                if ((Zuru & 0xF) == SavedZuru && mMpswd_check_default_hit_rate(CodeType, NpcCode) && mMpswd_check_default_npc_code(CodeType, NpcCode, Unknown))
-                {
-                    Invalid = false;
-                }
+            var invalid = true;
+
+            var calculatedChecksum = 0;
+            calculatedChecksum += GetStringByteValue(Reciepiant);
+            calculatedChecksum += GetStringByteValue(TownName);
+            calculatedChecksum += GetStringByteValue(Sender);
+            calculatedChecksum += ItemId;
+
+            if ((calculatedChecksum & 0xF) == checksum && mMpswd_check_default_hit_rate(CodeType, NpcCode) &&
+                mMpswd_check_default_npc_code(CodeType, NpcCode, Unknown))
+            {
+                invalid = false;
             }
 
-            return Invalid;
+            return invalid;
         }
 
         private static bool mMpswd_check_default_hit_rate(int CodeType, int CodeCheck)
@@ -490,16 +505,7 @@ namespace PasswordLibrary
             return Output;
         }
 
-        private static int GetStringByteValue(string Input)
-        {
-            byte[] Data = StringToAFByteArray(Input);
-            int Value = 0;
-            for (int i = 0; i < Data.Length; i++)
-            {
-                Value += Data[i];
-            }
-
-            return Value;
-        }
+        private static int GetStringByteValue(string input) =>
+            StringToAFByteArray(input).Aggregate(0, (current, t) => current + t);
     }
 }

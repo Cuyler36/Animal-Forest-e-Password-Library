@@ -1,12 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 
+// ReSharper disable once CheckNamespace
 namespace PasswordLibrary.Encoder
 {
     public static class Encoder
     {
-        public static byte[] mMpswd_make_passcode(int CodeType, int Unknown1, string RecipientTown, string Recipient, string Sender, ushort ItemId, int Unknown2)
+        public static byte[] mMpswd_make_passcode(CodeType CodeType, int HitRateIndex, string RecipientTown, string Recipient, string Sender, ushort ItemId, int ExtraData)
         {
             byte[] Output = new byte[24];
 
@@ -15,37 +15,39 @@ namespace PasswordLibrary.Encoder
 
             switch (CodeType)
             {
-                case 0:
-                case 4:
-                case 5:
+                case CodeType.Famicom:
+                case CodeType.User:
+                case CodeType.Card_E_Mini:
                     r0 = 4;
-                    Unknown2 = 0;
+                    ExtraData = 0;
                     r31 = 0xFF;
                     break;
-                case 1:
-                case 6:
-                    Unknown2 &= 3;
+                case CodeType.NPC:
+                case CodeType.New_NPC:
+                    ExtraData &= 3;
+                    r0 = 4;
                     break;
-                case 3:
-                    r0 = Unknown1 & 7;
-                    Unknown2 = 0;
+                case CodeType.Magazine:
+                    // Valid indices are 0 - 4. Hit rates are: { 80.0f, 60.0f, 30.0f, 0.0f, 100.0f }. The hit is RNG based and the player "wins" if hit < hitRate.
+                    r0 = HitRateIndex & 7;
+                    ExtraData = 0;
                     r31 = 0xFF;
                     break;
-                case 7:
-                    Unknown2 &= 0xFF;
+                case CodeType.Monument:
+                    ExtraData &= 0xFF;
                     r0 = 4;
                     r31 = 0xFF;
                     break;
                 default:
                     r0 = 4;
-                    CodeType = 4;
+                    CodeType = CodeType.User;
                     break;
             }
 
-            int Byte0 = (CodeType << 5) & 0xE0;
+            int Byte0 = ((int) CodeType << 5) & 0xE0;
             Byte0 |= (r0 << 2);
             Output[0] = (byte)Byte0;
-            Output[1] = (byte)Unknown2;
+            Output[1] = (byte)ExtraData;
             Output[2] = (byte)r31;
 
             // Copy Recipient Name
@@ -297,9 +299,9 @@ namespace PasswordLibrary.Encoder
         }
 
 #if DEBUG
-        public static string Encode(int CodeType, int Unknown1, string RecipientTown, string Recipient, string Sender, ushort ItemId, int Unknown2)
+        public static string Encode(CodeType CodeType, int HitRateIndex, string RecipientTown, string Recipient, string Sender, ushort ItemId, int ExtraData)
         {
-            byte[] PasswordData = mMpswd_make_passcode(CodeType, Unknown1, RecipientTown, Recipient, Sender, ItemId, Unknown2);
+            byte[] PasswordData = mMpswd_make_passcode(CodeType, HitRateIndex, RecipientTown, Recipient, Sender, ItemId, ExtraData);
             PrintByteBuffer("mMpswd_make_passcode", PasswordData);
             mMpswd_substitution_cipher(ref PasswordData);
             PrintByteBuffer("mMpswd_substitution_cipher", PasswordData);
@@ -318,7 +320,7 @@ namespace PasswordLibrary.Encoder
             byte[] Password = mMpswd_chg_6bits_code(PasswordData);
             PrintByteBuffer("mMpswd_chg_6bits_code", Password);
             mMpswd_chg_common_font_code(ref Password);
-            PrintByteBuffer("mMpswd_chg_common_font_code", PasswordData);
+            PrintByteBuffer("mMpswd_chg_common_font_code", Password);
 
             // Construct password string
             string PasswordString = "";
@@ -334,12 +336,24 @@ namespace PasswordLibrary.Encoder
             return PasswordString;
         }
 
-        private static void PrintByteBuffer(string stage, IEnumerable<byte> buffer) =>
-            Console.WriteLine((stage + ":").PadRight(32) + buffer.Aggregate("", (current, b) => current + b.ToString("X2") + " "));
-#else
-        public static string Encode(int CodeType, int Unknown1, string RecipientTown, string Recipient, string Sender, ushort ItemId, int Unknown2)
+        private static void PrintByteBuffer(string stage, byte[] buffer)
         {
-            byte[] PasswordData = mMpswd_make_passcode(CodeType, Unknown1, RecipientTown, Recipient, Sender, ItemId, Unknown2);
+            Console.Write((stage + ":").PadRight(32));
+            for (var i = 0; i < buffer.Length; i++)
+            {
+                if (i > 0 && i % 8 == 0)
+                {
+                    Console.Write(("\n").PadRight(32) + " ");
+                }
+                Console.Write(buffer[i].ToString("X2"));
+            }
+            Console.Write("\n\n");
+        }
+#else
+        public static string Encode(CodeType CodeType, int HitRateIndex, string RecipientTown, string Recipient, string Sender, ushort ItemId, int ExtraData)
+        {
+            byte[] PasswordData =
+ mMpswd_make_passcode(CodeType, HitRateIndex, RecipientTown, Recipient, Sender, ItemId, ExtraData);
             mMpswd_substitution_cipher(ref PasswordData);
             Common.mMpswd_transposition_cipher(ref PasswordData, true, 0);
             mMpswd_bit_shuffle(ref PasswordData, 0);
