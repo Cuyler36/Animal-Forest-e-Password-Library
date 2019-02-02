@@ -100,9 +100,9 @@ namespace PasswordLibrary
             "KirkBuchanan", // Senior Product Testing Manager @ Nintendo of America https://leadferret.com/directory/person/kirk-buchanan/16977208
             "TimOLeary", // Localization Manager & Translator @ Nintendo of America https://nintendo.fandom.com/wiki/Tim_O%27Leary
             "BillTrinen", // Senior Product Marketing Manager, Translator, & Interpreter @ Nintendo of America https://en.wikipedia.org/wiki/Bill_Trinen
-            "nAkAyOsInoNyuuSankin", // unknown (Japanese something)
-            "zendamaKINAKUDAMAkin", // unknown (Japanese something)
-            "OishikutetUYOKUNARU", // Translates to "It's becoming really delicious." "strongly delicious"
+            "nAkAyOsInoNyuuSankin", // Translates to "good bacteria" (善玉菌)
+            "zendamaKINAKUDAMAkin", // Translates to "bad bacteria" (悪玉菌)
+            "OishikutetUYOKUNARU", // Translates to "lactic-acid bacteria" or "Lactobacillus" (乳酸菌)
             "AsetoAminofen", // Translates to Acetaminophen. Like the drug.
             "fcSFCn64GCgbCGBagbVB", // fc = Famicom | SFC = Super Famicom | n64 = Nintendo 64 | GC = GameCube | gb = GameBoy | CGB = GameBoy Color | agb = GameBoy Advance | VB = Virtual Boy
             "YossyIsland", // Yoshi's Island. The game.
