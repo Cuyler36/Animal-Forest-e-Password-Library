@@ -102,7 +102,7 @@ namespace PasswordLibrary
             "BillTrinen", // Senior Product Marketing Manager, Translator, & Interpreter @ Nintendo of America https://en.wikipedia.org/wiki/Bill_Trinen
             "nAkAyOsInoNyuuSankin", // Translates to "good bacteria" (善玉菌)
             "zendamaKINAKUDAMAkin", // Translates to "bad bacteria" (悪玉菌)
-            "OishikutetUYOKUNARU", // Translates to "lactic-acid bacteria" or "Lactobacillus" (乳酸菌)
+            "OishikutetUYOKUNARU", // Translates to "It's becoming really delicious." "It's becoming strongly delicious."
             "AsetoAminofen", // Translates to Acetaminophen. Like the drug.
             "fcSFCn64GCgbCGBagbVB", // fc = Famicom | SFC = Super Famicom | n64 = Nintendo 64 | GC = GameCube | gb = GameBoy | CGB = GameBoy Color | agb = GameBoy Advance | VB = Virtual Boy
             "YossyIsland", // Yoshi's Island. The game.
