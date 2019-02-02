@@ -10,7 +10,7 @@ namespace PasswordLibrary.Encoder
         {
             byte[] Output = new byte[24];
 
-            int r0 = 0;
+            int realHitRateIndex;
             int r31 = 0;
 
             switch (CodeType)
@@ -18,34 +18,34 @@ namespace PasswordLibrary.Encoder
                 case CodeType.Famicom:
                 case CodeType.User:
                 case CodeType.Card_E_Mini:
-                    r0 = 4;
+                    realHitRateIndex = 4;
                     ExtraData = 0;
                     r31 = 0xFF;
                     break;
                 case CodeType.NPC:
                 case CodeType.New_NPC:
                     ExtraData &= 3;
-                    r0 = 4;
+                    realHitRateIndex = 4;
                     break;
                 case CodeType.Magazine:
                     // Valid indices are 0 - 4. Hit rates are: { 80.0f, 60.0f, 30.0f, 0.0f, 100.0f }. The hit is RNG based and the player "wins" if hit < hitRate.
-                    r0 = HitRateIndex & 7;
+                    realHitRateIndex = HitRateIndex & 7;
                     ExtraData = 0;
                     r31 = 0xFF;
                     break;
                 case CodeType.Monument:
                     ExtraData &= 0xFF;
-                    r0 = 4;
+                    realHitRateIndex = 4;
                     r31 = 0xFF;
                     break;
                 default:
-                    r0 = 4;
+                    realHitRateIndex = 4;
                     CodeType = CodeType.User;
                     break;
             }
 
             int Byte0 = ((int) CodeType << 5) & 0xE0;
-            Byte0 |= (r0 << 2);
+            Byte0 |= (realHitRateIndex << 2);
             Output[0] = (byte)Byte0;
             Output[1] = (byte)ExtraData;
             Output[2] = (byte)r31;

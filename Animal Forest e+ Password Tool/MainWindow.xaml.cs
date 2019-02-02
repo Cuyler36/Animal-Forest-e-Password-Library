@@ -61,6 +61,8 @@ namespace Animal_Forest_e__Password_Tool
         private static string MakeFamicomCode(string recepiantTownName, string recepiantName, string senderName, ushort itemId) =>
             Encoder.Encode(CodeType.Famicom, 0, recepiantTownName, recepiantName, senderName, itemId, 0);
 
+        //private static string MakeCardECode(string )
+
         // Decoder Code \\
 
         private void DecodeButton_Click(object sender, RoutedEventArgs e)
@@ -106,7 +108,7 @@ namespace Animal_Forest_e__Password_Tool
             var output = "";
             for (var i = startIdx; i < startIdx + length; i++)
             {
-                output += PasswordLibrary.Common.AFe_CharList[data[i]];
+                output += Common.AFe_CharList[data[i]];
             }
 
             return output;
@@ -192,9 +194,15 @@ namespace Animal_Forest_e__Password_Tool
                     EncoderResultTextBox.Text = MakeMagazineCode(PadAFString(TownNameTextBox.Text), PadAFString(RecipientTextBox.Text),
                         PadAFString(SenderTextBox.Text), itemId, HitRateIndexAdjust[HitRateComboBox.SelectedIndex]);
                     break;
-                case CodeType.User when ushort.TryParse(ItemIdTextBox.Text, System.Globalization.NumberStyles.HexNumber, null, out var itemId):
+                case CodeType.Famicom when ushort.TryParse(ItemIdTextBox.Text, System.Globalization.NumberStyles.HexNumber, null, out var itemId) && itemId >= 0x1DE8 && itemId <= 0x1E23:
+                case CodeType.User when ushort.TryParse(ItemIdTextBox.Text, System.Globalization.NumberStyles.HexNumber, null, out itemId):
                     EncoderResultTextBox.Text = MakeUserCode(PadAFString(TownNameTextBox.Text), PadAFString(RecipientTextBox.Text),
                         PadAFString(SenderTextBox.Text), itemId);
+                    break;
+                case CodeType.Famicom when ushort.TryParse(ItemIdTextBox.Text, System.Globalization.NumberStyles.HexNumber, null, out var itemId) && itemId < 0x1DE8 || itemId > 0x1E23:
+                    MessageBox.Show(
+                        "The item id you entered is invalid!\nFamicom passwords can only accept NES item ids, which are in the range of 0x1DE8 - 0x1E23!",
+                        "Famicom Password Error", MessageBoxButton.OK, MessageBoxImage.Error);
                     break;
                 case CodeType.Monument when DecorationComboBox.SelectedIndex > -1 && DecorationComboBox.SelectedIndex < 15 &&
                                             int.TryParse(YAcreTextBox.Text, out var acreY) && int.TryParse(XAcreTextBox.Text, out var acreX):
@@ -231,7 +239,9 @@ namespace Animal_Forest_e__Password_Tool
                     XAcreTextBox.Visibility = YAcreTextBox.Visibility = Visibility.Hidden;
                     HitRateLabel.Visibility = HitRateComboBox.Visibility = Visibility.Visible;
                     break;
+                case CodeType.Famicom:
                 case CodeType.User:
+                case CodeType.New_NPC:
                     Label2.Content = "Recipient's Town Name:";
                     Label3.Content = "Recipient's Name:";
                     Label4.Content = "Sender's Name:";

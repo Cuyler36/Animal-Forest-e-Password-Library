@@ -8,10 +8,10 @@ namespace PasswordLibrary
     {
         Famicom = 0, // NES
         NPC = 1, // Original NPC Code
-        Card_E = 2, // NOTE: This is a stubbed method (just returns 4)
+        Card_E = 2, // NOTE: This can only be sent to villagers in a letter.
         Magazine = 3, // Contest?
         User = 4, // Player-to-Player
-        Card_E_Mini = 5, // Only one data strip?
+        Card_E_Mini = 5, // Only one data strip? Hit rate index must be set to 4.
         New_NPC = 6, // Using the new password system?
         Monument = 7 // Town Decorations (from Object Delivery Service, see: https://www.nintendo.co.jp/ngc/gaej/obje/)
     }
@@ -71,42 +71,42 @@ namespace PasswordLibrary
 
         static readonly string[] mMpswd_transposition_cipher_char0_table = new string[16]
         {
-            "NiiMasaru",
-            "KomatsuKunihiro",
-            "TakakiGentarou",
-            "MiyakeHiromichi",
-            "HayakawaKenzo",
-            "KasamatsuShigehiro",
-            "SumiyoshiNobuhiro",
-            "NomaTakafumi",
-            "EguchiKatsuya",
-            "NogamiHisashi",
-            "IidaToki",
-            "IkegawaNoriko",
-            "KawaseTomohiro",
-            "BandoTaro",
-            "TotakaKazuo",
-            "WatanabeKunio"
+            "NiiMasaru", // Animal Crossing programmer (worked on the original N64 title)
+            "KomatsuKunihiro", // Animal Crossing programmer (AF, AF+, AC, AFe+)
+            "TakakiGentarou", // Animal Crossing programmer
+            "MiyakeHiromichi", // Animal Crossing programmer
+            "HayakawaKenzo", // Animal Crossing programmer
+            "KasamatsuShigehiro", // Animal Crossing programmer
+            "SumiyoshiNobuhiro", // Animal Crossing programmer
+            "NomaTakafumi", // Animal Crossing programmer
+            "EguchiKatsuya", // Animal Crossing director
+            "NogamiHisashi", // Animal Crossing director
+            "IidaToki", // Animal Crossing screen designer
+            "IkegawaNoriko", // Animal Crossing character design
+            "KawaseTomohiro", // Animal Crossing NES/Famicom emulator programmer
+            "BandoTaro", // Animal Crossing Sound Effects programmer
+            "TotakaKazuo", // Animal Crossing Sound Director (Kazumi Totaka)
+            "WatanabeKunio" // Animal Crossing Script member (made text?)
         };
 
         static readonly string[] mMpswd_transposition_cipher_char1_table = new string[16]
         {
-            "RichAmtower",
-            "KyleHudson",
-            "MichaelKelbaugh",
-            "RaycholeLAneff",
-            "LeslieSwan",
-            "YoshinobuMantani",
-            "KirkBuchanan",
-            "TimOLeary",
-            "BillTrinen",
-            "nAkAyOsInoNyuuSankin",
-            "zendamaKINAKUDAMAkin",
-            "OishikutetUYOKUNARU",
-            "AsetoAminofen",
-            "fcSFCn64GCgbCGBagbVB",
-            "YossyIsland",
-            "KedamonoNoMori"
+            "RichAmtower", // Localization Manager @ Nintendo of America https://www.linkedin.com/in/rich-amtower-83222a1, https://nintendo.fandom.com/wiki/Rich_Amtower
+            "KyleHudson", // Former Product Testing Manager @ Nintendo of America https://metroid.fandom.com/wiki/Kyle_Hudson
+            "MichaelKelbaugh", // Debugger & Beta Tester @ Nintendo of America https://nintendo.fandom.com/wiki/Michael_Kelbaugh
+            "RaycholeLAneff", // Raychole L'Anett - Director of Engineering Services @ Nintendo of America https://metroid.fandom.com/wiki/Raychole_L%27Anett
+            "LeslieSwan", // Senior Editor @ Nintendo Power, VA, Nintendo of America localization manager @ Treehouse. https://www.mariowiki.com/Leslie_Swan
+            "YoshinobuMantani", // Nintendo of America employee (QA, Debugger) https://www.imdb.com/name/nm1412191/
+            "KirkBuchanan", // Senior Product Testing Manager @ Nintendo of America https://leadferret.com/directory/person/kirk-buchanan/16977208
+            "TimOLeary", // Localization Manager & Translator @ Nintendo of America https://nintendo.fandom.com/wiki/Tim_O%27Leary
+            "BillTrinen", // Senior Product Marketing Manager, Translator, & Interpreter @ Nintendo of America https://en.wikipedia.org/wiki/Bill_Trinen
+            "nAkAyOsInoNyuuSankin", // unknown (Japanese something)
+            "zendamaKINAKUDAMAkin", // unknown (Japanese something)
+            "OishikutetUYOKUNARU", // Translates to "It's becoming really delicious." "strongly delicious"
+            "AsetoAminofen", // Translates to Acetaminophen. Like the drug.
+            "fcSFCn64GCgbCGBagbVB", // fc = Famicom | SFC = Super Famicom | n64 = Nintendo 64 | GC = GameCube | gb = GameBoy | CGB = GameBoy Color | agb = GameBoy Advance | VB = Virtual Boy
+            "YossyIsland", // Yoshi's Island. The game.
+            "KedamonoNoMori" // Translates to "Animal Forest" or "Beast Forest"
         };
 
         public static readonly string[][] mMpswd_transposition_cipher_char_table =
