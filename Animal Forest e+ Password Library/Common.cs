@@ -180,37 +180,7 @@ namespace PasswordLibrary
             }
         }
 
-        public static void mMpswd_chg_8bits_code(ref byte[] StoredLocation, byte[] Password)
-        {
-            int PasswordIndex = 0;
-            int StoredLocationIndex = 0;
-
-            int StoredValue = 0;
-            int Count = 0;
-            int ShiftRightValue = 0;
-            int ShiftLeftValue = 0;
-
-            while (true)
-            {
-                StoredValue |= (((Password[PasswordIndex] >> ShiftRightValue++) & 1) << ShiftLeftValue++) & 0xFF;
-                if (ShiftLeftValue >= 8)
-                {
-                    Count++;
-                    StoredLocation[StoredLocationIndex++] = (byte)StoredValue;
-                    ShiftLeftValue = 0;
-                    if (Count >= 24)
-                    {
-                        return;
-                    }
-                    StoredValue = 0;
-                }
-                if (ShiftRightValue >= 6)
-                {
-                    ShiftRightValue = 0;
-                    PasswordIndex++;
-                }
-            }
-        }
+        
 
         public static void mMpswd_transposition_cipher(ref byte[] Data, bool Negate, int KeyIndex)
         {
@@ -260,17 +230,14 @@ namespace PasswordLibrary
 
             for (int i = 0; i < 23; i++) // pretty sure this should be < 23
             {
-                byte Value = Buffer[22 - i]; // this should be 22
-                byte ChangedValue = (byte)(
-                      ((Value & 0x80) >> 7)
-                    | ((Value & 0x40) >> 5)
-                    | ((Value & 0x20) >> 3)
-                    | ((Value & 0x10) >> 1)
-                    | ((Value & 0x08) << 1)
-                    | ((Value & 0x04) << 3)
-                    | ((Value & 0x02) << 5)
-                    | ((Value & 0x01) << 7));
-                OutputBuffer[i] = ChangedValue;
+                byte value = Buffer[22 - i]; // this should be 22
+                byte changedValue = 0;
+                for (var x = 0; x < 8; x++)
+                {
+                    changedValue |= (byte)(((value >> x) & 1) << (7 - x));
+                }
+
+                OutputBuffer[i] = changedValue;
             }
 
             for (int i = 0, idx = 0; i < 23; i++)

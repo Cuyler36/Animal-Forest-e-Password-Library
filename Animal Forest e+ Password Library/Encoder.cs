@@ -159,21 +159,20 @@ namespace PasswordLibrary.Encoder
             byte[] Buffer = Data.Take(CharOffset).Concat(Data.Skip(CharOffset + 1).Take(23 - CharOffset)).ToArray();
             byte[] Output = new byte[CharCount];
 
-            int TableNumber = (Data[CharOffset] << 2) & 0x0C;
-            int[] IndexTable = Common.mMpswd_select_idx_table[TableNumber >> 2];
+            int[] IndexTable = Common.mMpswd_select_idx_table[Data[CharOffset] & 3];
 
             for (int i = 0; i < CharCount; i++)
             {
-                byte Temp = Buffer[i];
-                for (int x = 0; x < 8; x++)
+                var selectedByte = Buffer[i];
+                for (var x = 0; x < 8; x++)
                 {
-                    int OutputOffset = IndexTable[x] + i;
-                    OutputOffset %= CharCount;
-                    byte Value = (byte)(Temp >> x);
-                    Value &= 1;
-                    Value <<= x;
-                    Value |= Output[OutputOffset];
-                    Output[OutputOffset] = Value;
+                    var OutputOffset = IndexTable[x] + i;
+                    if (OutputOffset >= CharCount)
+                    {
+                        OutputOffset -= CharCount;
+                    }
+
+                    Output[OutputOffset] |= (byte)(((selectedByte >> x) & 1) << x);
                 }
             }
 
@@ -234,12 +233,12 @@ namespace PasswordLibrary.Encoder
             else if (SwitchType > 0x08)
             {
                 Common.mMpswd_bit_arrange_reverse(ref Data);
-                Common.mMpswd_bit_shift(ref Data, -SwitchType * 5);
+                Common.mMpswd_bit_shift(ref Data, SwitchType * -5);
             }
             else if (SwitchType > 0x04)
             {
-                Common.mMpswd_bit_shift(ref Data, -SwitchType * 5);
-                Common.mMpswd_bit_arrange_reverse(ref Data);
+                Common.mMpswd_bit_shift(ref Data, SwitchType * -5);
+                Common.mMpswd_bit_reverse(ref Data);
             }
             else
             {
@@ -258,16 +257,13 @@ namespace PasswordLibrary.Encoder
             int byte8Idx = 0;
 
             int Value = 0;
-            int Pass = 0;
             int Total = 0;
 
             while (true)
             {
-                Pass = Data[byte8Idx] >> bit8Idx;
-                Pass = (Pass & 1) << bit6Idx;
+                Value |= ((Data[byte8Idx] >> bit8Idx) & 1) << bit6Idx;
                 bit8Idx++;
                 bit6Idx++;
-                Value |= Pass;
 
                 if (bit6Idx == 6)
                 {

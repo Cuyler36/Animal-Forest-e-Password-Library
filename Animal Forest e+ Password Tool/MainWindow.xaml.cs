@@ -148,6 +148,19 @@ namespace Animal_Forest_e__Password_Tool
                     String4Label.Content = "Price: " + price.ToString("#,##0") + " Bells";
                     String5Label.Content = "Placement Acre: " + acreY + "-" + acreX;
                     break;
+
+                case CodeType.Card_E:
+                case CodeType.Card_E_Mini:
+                    Console.WriteLine(
+                        $"Town Name: {townName}\r\nPlayer Name: {playerName}\r\nSender Name: {senderString}\r\nSent Item ID: 0x{presentItemId:X4}");
+
+                    String1Label.Content = "Recipient's Town Name: " + townName;
+                    String2Label.Content = "Recipient's Name: " + playerName;
+                    String3Label.Content = "Sender's Name: " + senderString;
+                    String4Label.Content = "Item ID: 0x" + presentItemId.ToString("X4");
+                    String5Label.Content = "";
+                    break;
+
                 case CodeType.User:
                 case CodeType.Magazine:
                     Console.WriteLine(

@@ -6,17 +6,17 @@ namespace PasswordLibrary.Decoder
 {
     public class Decoder
     {
-        public static void mMpswd_decode_bit_shuffle(ref byte[] Data, bool Unknown)
+        public static void mMpswd_decode_bit_shuffle(ref byte[] Data, bool keyIdx)
         {
-            int r28 = Unknown ? 0x17 : 0x16; // Count
-            int r31 = Unknown ? 0x09 : 0x0D; // Bit index
+            int count = keyIdx ? 0x17 : 0x16; // Count
+            int bitIdx = keyIdx ? 0x09 : 0x0D; // Bit index
 
-            byte TableIndex = Data[r31];
+            byte TableIndex = Data[bitIdx];
             byte[] ShuffledData = new byte[23]; // Exclude the r31 byte
 
             for (int i = 0, idx = 0; i < 23; i++)
             {
-                if (i == r31)
+                if (i == bitIdx)
                 {
                     idx++; // Skip r31 byte
                 }
@@ -24,34 +24,34 @@ namespace PasswordLibrary.Decoder
             }
 
             byte[] ZeroedData = new byte[23];
-            int[] ShuffleTable = Common.mMpswd_select_idx_table[((Data[r31] << 2) & 0xC) >> 2]; // Shouldn't this be & 0xF?? (It's & 0xC in code)
+            int[] ShuffleTable = Common.mMpswd_select_idx_table[Data[bitIdx] & 3];
 
             int OffsetIdx = 0;
             int ZeroedDataIdx = 0;
-            while (OffsetIdx < r28)
+            while (OffsetIdx < count)
             {
-                int r4 = 0;
-                int r9 = 0;
+                int outputIdx = 0;
+                int bit = 0;
 
                 for (int x = 0; x < 8; x++)
                 {
-                    int OutputOffset = (ShuffleTable[r4++] + OffsetIdx) % r28;
-                    byte CurrentByte = ShuffledData[OutputOffset];
+                    int OutputOffset = ShuffleTable[outputIdx++] + OffsetIdx;
+                    if (OutputOffset >= count)
+                    {
+                        OutputOffset -= count;
+                    }
 
-                    CurrentByte >>= r9;
-                    CurrentByte &= 1;
-                    CurrentByte <<= r9++;
-
-                    ZeroedData[ZeroedDataIdx] |= CurrentByte;
+                    ZeroedData[ZeroedDataIdx] |= (byte)(((ShuffledData[OutputOffset] >> bit) & 1) << bit);
+                    bit++;
                 }
 
                 OffsetIdx++;
                 ZeroedDataIdx++;
             }
 
-            ZeroedData.Take(r31).ToArray().CopyTo(Data, 0);
-            Data[r31] = TableIndex;
-            ZeroedData.Skip(r31).Take(ZeroedDataIdx - r31).ToArray().CopyTo(Data, r31 + 1);
+            ZeroedData.Take(bitIdx).ToArray().CopyTo(Data, 0);
+            Data[bitIdx] = TableIndex;
+            ZeroedData.Skip(bitIdx).Take(ZeroedDataIdx - bitIdx).ToArray().CopyTo(Data, bitIdx + 1);
         }
 
         public static void mMpswd_decode_bit_code(ref byte[] Data)
@@ -127,6 +127,41 @@ namespace PasswordLibrary.Decoder
             }
         }
 
+        public static void mMpswd_chg_8bits_code(ref byte[] StoredLocation, byte[] Password)
+        {
+            int PasswordIndex = 0;
+            int StoredLocationIndex = 0;
+
+            int StoredValue = 0;
+            int Count = 0;
+            int ShiftRightValue = 0;
+            int ShiftLeftValue = 0;
+
+            while (true)
+            {
+                StoredValue |= (((Password[PasswordIndex] >> ShiftRightValue) & 1) << ShiftLeftValue) & 0xFF;
+                ShiftRightValue++;
+                ShiftLeftValue++;
+
+                if (ShiftLeftValue > 7)
+                {
+                    Count++;
+                    StoredLocation[StoredLocationIndex++] = (byte)StoredValue;
+                    ShiftLeftValue = 0;
+                    if (Count >= 24)
+                    {
+                        return;
+                    }
+                    StoredValue = 0;
+                }
+                if (ShiftRightValue > 5)
+                {
+                    ShiftRightValue = 0;
+                    PasswordIndex++;
+                }
+            }
+        }
+
         public static void mMpswd_decode_substitution_cipher(ref byte[] Data)
         {
             for (int i = 0; i < 24; i++)
@@ -153,7 +188,7 @@ namespace PasswordLibrary.Decoder
             byte[] PasswordData = new byte[24];
 
             Common.mMpswd_chg_password_font_code(ref Input);
-            Common.mMpswd_chg_8bits_code(ref PasswordData, Input);
+            mMpswd_chg_8bits_code(ref PasswordData, Input);
             Common.mMpswd_transposition_cipher(ref PasswordData, true, 1);
             mMpswd_decode_bit_shuffle(ref PasswordData, true);
             mMpswd_decode_bit_code(ref PasswordData);
