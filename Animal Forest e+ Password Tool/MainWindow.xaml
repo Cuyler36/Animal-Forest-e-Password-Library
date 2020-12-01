@@ -62,6 +62,7 @@
                         <ComboBoxItem Content="80%"/>
                         <ComboBoxItem Content="100%"/>
                     </ComboBox>
+                    <CheckBox x:Name="EnglishPasswordBox" Content="Generate English Password" Margin="10,250,0,0" Height="16" VerticalAlignment="Top"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Decoder">

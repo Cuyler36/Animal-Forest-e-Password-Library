@@ -46,20 +46,20 @@ namespace Animal_Forest_e__Password_Tool
         // Encoder Code \\
 
         private static string MakeMonumentCode(int monumentType, int acreY, int acreX, string townName,
-            string recipient, string price) => Encoder.Encode(CodeType.Monument, 0, townName, recipient, price,
-            (ushort) (monumentType % 15), ((acreY & 7) << 3) | (acreX & 7));
+            string recipient, string price, bool englishPasswords) => Encoder.Encode(CodeType.Monument, 0, townName, recipient, price,
+            (ushort) (monumentType % 15), ((acreY & 7) << 3) | (acreX & 7), englishPasswords);
 
-        private static string MakeUserCode(string townName, string recipient, string sender, ushort itemId) =>
-            Encoder.Encode(CodeType.User, 1, townName, recipient, sender, itemId, 0);
+        private static string MakeUserCode(string townName, string recipient, string sender, ushort itemId, bool englishPasswords) =>
+            Encoder.Encode(CodeType.User, 1, townName, recipient, sender, itemId, 0, englishPasswords);
 
-        private static string MakeMagazineCode(string senderTownName, string sender, string unknown, ushort itemId, int hitRateIndex) =>
-            Encoder.Encode(CodeType.Magazine, hitRateIndex, senderTownName, sender, unknown, itemId, 0);
+        private static string MakeMagazineCode(string senderTownName, string sender, string unknown, ushort itemId, int hitRateIndex, bool englishPasswords) =>
+            Encoder.Encode(CodeType.Magazine, hitRateIndex, senderTownName, sender, unknown, itemId, 0, englishPasswords);
 
-        private static string MakeNewNpcCode(string recepiantTownName, string recepiantName, string senderName, ushort itemId) =>
-            Encoder.Encode(CodeType.New_NPC, 0, recepiantTownName, recepiantName, senderName, itemId, 0);
+        private static string MakeNewNpcCode(string recepiantTownName, string recepiantName, string senderName, ushort itemId, bool englishPasswords) =>
+            Encoder.Encode(CodeType.New_NPC, 0, recepiantTownName, recepiantName, senderName, itemId, 0, englishPasswords);
 
-        private static string MakeFamicomCode(string recepiantTownName, string recepiantName, string senderName, ushort itemId) =>
-            Encoder.Encode(CodeType.Famicom, 0, recepiantTownName, recepiantName, senderName, itemId, 0);
+        private static string MakeFamicomCode(string recepiantTownName, string recepiantName, string senderName, ushort itemId, bool englishPasswords) =>
+            Encoder.Encode(CodeType.Famicom, 0, recepiantTownName, recepiantName, senderName, itemId, 0, englishPasswords);
 
         //private static string MakeCardECode(string )
 
@@ -205,12 +205,12 @@ namespace Animal_Forest_e__Password_Tool
                 case CodeType.Magazine when ushort.TryParse(ItemIdTextBox.Text, System.Globalization.NumberStyles.HexNumber, null, out var itemId) &&
                                             HitRateComboBox.SelectedIndex > -1 && HitRateComboBox.SelectedIndex < 5:
                     EncoderResultTextBox.Text = MakeMagazineCode(PadAFString(TownNameTextBox.Text), PadAFString(RecipientTextBox.Text),
-                        PadAFString(SenderTextBox.Text), itemId, HitRateIndexAdjust[HitRateComboBox.SelectedIndex]);
+                        PadAFString(SenderTextBox.Text), itemId, HitRateIndexAdjust[HitRateComboBox.SelectedIndex], EnglishPasswordBox.IsChecked.Value);
                     break;
                 case CodeType.Famicom when ushort.TryParse(ItemIdTextBox.Text, System.Globalization.NumberStyles.HexNumber, null, out var itemId) && itemId >= 0x1DE8 && itemId <= 0x1E23:
                 case CodeType.User when ushort.TryParse(ItemIdTextBox.Text, System.Globalization.NumberStyles.HexNumber, null, out itemId):
                     EncoderResultTextBox.Text = MakeUserCode(PadAFString(TownNameTextBox.Text), PadAFString(RecipientTextBox.Text),
-                        PadAFString(SenderTextBox.Text), itemId);
+                        PadAFString(SenderTextBox.Text), itemId, EnglishPasswordBox.IsChecked.Value);
                     break;
                 case CodeType.Famicom when ushort.TryParse(ItemIdTextBox.Text, System.Globalization.NumberStyles.HexNumber, null, out var itemId) && itemId < 0x1DE8 || itemId > 0x1E23:
                     MessageBox.Show(
@@ -220,7 +220,7 @@ namespace Animal_Forest_e__Password_Tool
                 case CodeType.Monument when DecorationComboBox.SelectedIndex > -1 && DecorationComboBox.SelectedIndex < 15 &&
                                             int.TryParse(YAcreTextBox.Text, out var acreY) && int.TryParse(XAcreTextBox.Text, out var acreX):
                     EncoderResultTextBox.Text = MakeMonumentCode(DecorationComboBox.SelectedIndex, acreY, acreX,
-                        PadAFString(TownNameTextBox.Text), PadAFString(RecipientTextBox.Text), PadAFString(DecorationPriceTextBox.Text));
+                        PadAFString(TownNameTextBox.Text), PadAFString(RecipientTextBox.Text), PadAFString(DecorationPriceTextBox.Text), EnglishPasswordBox.IsChecked.Value);
                     break;
             }
         }

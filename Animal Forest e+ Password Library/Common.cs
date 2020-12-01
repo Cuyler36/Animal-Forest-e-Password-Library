@@ -1,9 +1,12 @@
-﻿using System;
+﻿#define ANIMAL_FOREST_E_PLUS
+
+using System;
 using System.Linq;
 
 // ReSharper disable once CheckNamespace
 namespace PasswordLibrary
 {
+
     public enum CodeType
     {
         Famicom = 0, // NES
@@ -57,6 +60,14 @@ namespace PasswordLibrary
             0x0527, 0x0529, 0x052F, 0x0551, 0x0557, 0x055D, 0x0565, 0x0577, 0x0581, 0x058F, 0x0593, 0x0595, 0x0599, 0x059F, 0x05A7, 0x05AB,
             0x05AD, 0x05B3, 0x05BF, 0x05C9, 0x05CB, 0x05CF, 0x05D1, 0x05D5, 0x05DB, 0x05E7, 0x05F3, 0x05FB, 0x0607, 0x060D, 0x0611, 0x0617,
             0x061F, 0x0623, 0x062B, 0x062F, 0x063D, 0x0641, 0x0647, 0x0649, 0x064D, 0x0653, 0x0655, 0x065B, 0x0665, 0x0679, 0x067F, 0x0683,
+        };
+
+        public static readonly byte[] usable_to_fontnum_new_translation = new byte[64]
+        {
+            0x62, 0x4B, 0x7A, 0x35, 0x63, 0x71, 0x59, 0x5A, 0x4F, 0x64, 0x74, 0x36, 0x6E, 0x6C, 0x42, 0x79,
+            0x6F, 0x38, 0x34, 0x4C, 0x6B, 0x25, 0x41, 0x51, 0x6D, 0x44, 0x50, 0x49, 0x37, 0x26, 0x52, 0x73,
+            0x77, 0x55, 0x21, 0x72, 0x33, 0x45, 0x78, 0x4D, 0x43, 0x40, 0x65, 0x39, 0x67, 0x76, 0x56, 0x47,
+            0x75, 0x4E, 0x69, 0x58, 0x57, 0x66, 0x54, 0x4A, 0x46, 0x53, 0x48, 0x70, 0x32, 0x61, 0x6A, 0x68
         };
 
         public static readonly byte[] usable_to_fontnum_new = new byte[64]
@@ -159,11 +170,11 @@ namespace PasswordLibrary
 
         // Methods
 
-        public static byte mMpswd_chg_password_font_code_sub(byte Character)
+        public static byte mMpswd_chg_password_font_code_sub(byte Character, in byte[] fontnum_tbl)
         {
             for (byte i = 0; i < 0x40; i++)
             {
-                if (usable_to_fontnum_new[i] == Character)
+                if (fontnum_tbl[i] == Character)
                 {
                     return i;
                 }
@@ -172,11 +183,11 @@ namespace PasswordLibrary
             return 0xFF;
         }
 
-        public static void mMpswd_chg_password_font_code(ref byte[] Password)
+        public static void mMpswd_chg_password_font_code(ref byte[] Password, in byte[] fontnum_tbl)
         {
             for (int i = 0; i < 32; i++)
             {
-                Password[i] = mMpswd_chg_password_font_code_sub(Password[i]);
+                Password[i] = mMpswd_chg_password_font_code_sub(Password[i], fontnum_tbl);
             }
         }
 

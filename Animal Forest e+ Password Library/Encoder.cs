@@ -11,7 +11,7 @@ namespace PasswordLibrary.Encoder
             byte[] Output = new byte[24];
 
             int realHitRateIndex;
-            int r31 = 0;
+            int npcCode = 0;
 
             switch (CodeType)
             {
@@ -20,7 +20,7 @@ namespace PasswordLibrary.Encoder
                 case CodeType.Card_E_Mini:
                     realHitRateIndex = 4;
                     ExtraData = 0;
-                    r31 = 0xFF;
+                    npcCode = 0xFF;
                     break;
                 case CodeType.NPC:
                 case CodeType.New_NPC:
@@ -31,12 +31,12 @@ namespace PasswordLibrary.Encoder
                     // Valid indices are 0 - 4. Hit rates are: { 80.0f, 60.0f, 30.0f, 0.0f, 100.0f }. The hit is RNG based and the player "wins" if hit < hitRate.
                     realHitRateIndex = HitRateIndex & 7;
                     ExtraData = 0;
-                    r31 = 0xFF;
+                    npcCode = 0xFF;
                     break;
                 case CodeType.Monument:
                     ExtraData &= 0xFF;
                     realHitRateIndex = 4;
-                    r31 = 0xFF;
+                    npcCode = 0xFF;
                     break;
                 default:
                     realHitRateIndex = 4;
@@ -48,7 +48,7 @@ namespace PasswordLibrary.Encoder
             Byte0 |= (realHitRateIndex << 2);
             Output[0] = (byte)Byte0;
             Output[1] = (byte)ExtraData;
-            Output[2] = (byte)r31;
+            Output[2] = (byte)npcCode;
 
             // Copy Recipient Name
             for(int i = 0; i < 6; i++)
@@ -129,7 +129,7 @@ namespace PasswordLibrary.Encoder
             }
 
             Checksum += ItemId;
-            Checksum += r31;
+            Checksum += npcCode;
             Output[0] |= (byte)((Checksum >> 2) & 3);
             Output[1] |= (byte)((Checksum & 3) << 6);
 
@@ -286,12 +286,14 @@ namespace PasswordLibrary.Encoder
             }
         }
 
-        public static void mMpswd_chg_common_font_code(ref byte[] Password)
+        public static void mMpswd_chg_common_font_code(ref byte[] Password, bool englishPasswords)
         {
-            for (int i = 0; i < 32; i++)
-            {
-                Password[i] = Common.usable_to_fontnum_new[Password[i]];
-            }
+            if (englishPasswords)
+                for (int i = 0; i < 32; i++)
+                    Password[i] = Common.usable_to_fontnum_new_translation[Password[i]];
+            else
+                for (int i = 0; i < 32; i++)
+                    Password[i] = Common.usable_to_fontnum_new[Password[i]];
         }
 
 #if DEBUG
@@ -346,10 +348,9 @@ namespace PasswordLibrary.Encoder
             Console.Write("\n\n");
         }
 #else
-        public static string Encode(CodeType CodeType, int HitRateIndex, string RecipientTown, string Recipient, string Sender, ushort ItemId, int ExtraData)
+        public static string Encode(CodeType CodeType, int HitRateIndex, string RecipientTown, string Recipient, string Sender, ushort ItemId, int ExtraData, bool englishPasswords)
         {
-            byte[] PasswordData =
- mMpswd_make_passcode(CodeType, HitRateIndex, RecipientTown, Recipient, Sender, ItemId, ExtraData);
+            byte[] PasswordData = mMpswd_make_passcode(CodeType, HitRateIndex, RecipientTown, Recipient, Sender, ItemId, ExtraData);
             mMpswd_substitution_cipher(ref PasswordData);
             Common.mMpswd_transposition_cipher(ref PasswordData, true, 0);
             mMpswd_bit_shuffle(ref PasswordData, 0);
@@ -358,7 +359,7 @@ namespace PasswordLibrary.Encoder
             mMpswd_bit_shuffle(ref PasswordData, 1);
             Common.mMpswd_transposition_cipher(ref PasswordData, false, 1);
             byte[] Password = mMpswd_chg_6bits_code(PasswordData);
-            mMpswd_chg_common_font_code(ref Password);
+            mMpswd_chg_common_font_code(ref Password, englishPasswords);
 
             // Construct password string
             string PasswordString = "";

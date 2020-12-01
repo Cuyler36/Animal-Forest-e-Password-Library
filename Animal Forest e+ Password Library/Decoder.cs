@@ -178,7 +178,7 @@ namespace PasswordLibrary.Decoder
         }
 
         // Main Code \\
-        public static byte[] Decode(byte[] Input)
+        public static byte[] Decode(byte[] Input, bool englishPasswords)
         {
             if (Input.Length != 32)
             {
@@ -187,7 +187,7 @@ namespace PasswordLibrary.Decoder
 
             byte[] PasswordData = new byte[24];
 
-            Common.mMpswd_chg_password_font_code(ref Input);
+            Common.mMpswd_chg_password_font_code(ref Input, englishPasswords ? Common.usable_to_fontnum_new_translation : Common.usable_to_fontnum_new);
             mMpswd_chg_8bits_code(ref PasswordData, Input);
             Common.mMpswd_transposition_cipher(ref PasswordData, true, 1);
             mMpswd_decode_bit_shuffle(ref PasswordData, true);
@@ -200,7 +200,7 @@ namespace PasswordLibrary.Decoder
             return PasswordData;
         }
 
-        public static byte[] Decode(string Password)
+        public static byte[] Decode(string Password, bool englishPasswords = false)
         {
             if (Password.Length == 32)
             {
@@ -214,7 +214,7 @@ namespace PasswordLibrary.Decoder
                     }
                     Data[i] = (byte)Idx;
                 }
-                return Decode(Data);
+                return Decode(Data, englishPasswords);
             }
             return null;
         }
